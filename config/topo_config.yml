@@ -1,0 +1,24 @@
+# config/topo_config.yml
+# 示例：3 个交换机 S1, S2, S3，端口带宽 10 Mbps
+# DPID 用整数或字符串均可，这里用整数方便
+
+ports:
+  "1":
+    capacity_bps:
+      "1": 10000000   # S1-eth1
+      "2": 10000000   # S1-eth2
+  "2":
+    capacity_bps:
+      "1": 10000000   # S2-eth1
+      "2": 10000000   # S2-eth2
+  "3":
+    capacity_bps:
+      "1": 10000000   # S3-eth1
+      "2": 10000000   # S3-eth2
+
+# 静态路径：src_ip-dst_ip -> [ [dpid, out_port], ... ]
+paths:
+  "10.0.1.1-10.0.3.1":
+    - [1, 2]  # S1 出 2
+    - [2, 2]  # S2 出 2
+    - [3, 1]  # S3 出 1

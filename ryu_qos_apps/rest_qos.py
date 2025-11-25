@@ -36,6 +36,13 @@ from ryu.lib import ofctl_v1_0
 from ryu.lib import ofctl_v1_2
 from ryu.lib import ofctl_v1_3
 from ryu.lib.ovs import bridge
+# try:
+#     from ryu.lib.ovs import bridge
+# except ImportError:
+#     # ryu.lib.ovs may not be available in some ryu releases/installations.
+#     # Leave `bridge` as None so callers can detect absence and raise a
+#     # clear error when OVSDB-related operations are attempted.
+#     bridge = None   
 from ryu.ofproto import ofproto_v1_0
 from ryu.ofproto import ofproto_v1_2
 from ryu.ofproto import ofproto_v1_3

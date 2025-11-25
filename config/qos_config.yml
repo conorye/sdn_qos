@@ -1,0 +1,31 @@
+qos_ports:
+  "1":
+    "2":
+      max_rate_bps: 10000000
+      queues:
+        "0":
+          min_rate_bps: 0
+        "1":
+          min_rate_bps: 2000000
+        "2":
+          min_rate_bps: 5000000
+  "2":
+    "2":
+      max_rate_bps: 10000000
+      queues:
+        "0":
+          min_rate_bps: 0
+        "1":
+          min_rate_bps: 2000000
+        "2":
+          min_rate_bps: 5000000
+  "3":
+    "1":
+      max_rate_bps: 10000000
+      queues:
+        "0":
+          min_rate_bps: 0
+        "1":
+          min_rate_bps: 2000000
+        "2":
+          min_rate_bps: 5000000
