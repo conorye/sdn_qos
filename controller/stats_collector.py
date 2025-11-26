@@ -1,7 +1,7 @@
 '''
 Author: yc && qq747339545@163.com
 Date: 2025-11-25 09:51:25
-LastEditTime: 2025-11-25 15:23:23
+LastEditTime: 2025-11-25 22:14:00
 FilePath: /sdn_qos/controller/stats_collector.py
 Description:   Stats 收集模块
 
@@ -12,7 +12,7 @@ import threading
 import time
 from typing import Dict
 from ryu.ofproto import ofproto_v1_3
-from .models import Flow
+from models import Flow
 
 
 class StatsCollector:
@@ -146,7 +146,7 @@ class StatsCollector:
                 self.s.finish_flow(flow)
 
     def _print_port_book(self):
-        for dpid,port,cap,res,avail in self.s.adm.dump_book():
+        for dpid,port,cap,res,avail in self.s.admission.dump_book():
             self.logger.info(f"[PortBook] (s{dpid},{port}) cap={cap/1e6:.1f}M "
                              f"reserved={res/1e6:.1f}M avail={avail/1e6:.1f}M")
     

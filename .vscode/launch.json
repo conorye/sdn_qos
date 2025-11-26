@@ -11,8 +11,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": "${command:pickArgs}",
-            "justMyCode": false  // 禁用此选项以调试所有库代码，包括第三方库
-            // "subProcess": true,  // 允许调试子进程，这对多线程和多进程应用有帮助
+            "justMyCode": false, // 禁用此选项以调试所有库代码，包括第三方库
+            "subProcess": true,  // 允许调试子进程，这对多线程和多进程应用有帮助
             // "gevent": true,
             // "python": "/home/yc/.pyenv/versions/ryu39/bin/python3.9"
         }

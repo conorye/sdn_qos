@@ -1,7 +1,7 @@
 '''
 Author: yc && qq747339545@163.com
 Date: 2025-11-25 09:51:34
-LastEditTime: 2025-11-25 10:03:22
+LastEditTime: 2025-11-26 15:06:23
 FilePath: /sdn_qos/controller/host_channel.py
 Description: Host 通信模块
 
@@ -19,7 +19,7 @@ class HostChannel:
     控制器侧 TCP Server：
     - 接收 host REGISTER
     - 向 host 推送 permit 消息
-    """
+    """ 
 
     def __init__(self, host: str, port: int):
         self.host = host
@@ -34,6 +34,7 @@ class HostChannel:
         self._server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server_sock.bind((self.host, self.port))
         self._server_sock.listen(5)
+        print(f"✅ TCP Server started on {self.host}:{self.port}")  # 添加这行
         self._thread = threading.Thread(target=self._accept_loop, daemon=True)
         self._thread.start()
 
@@ -45,30 +46,51 @@ class HostChannel:
 
     def _handle_client(self, conn: socket.socket):
         src_ip = None
+        addr = conn.getpeername()
         try:
             f = conn.makefile("rwb")
-            line = f.readline().decode().strip()
-            if line.startswith("REGISTER "):
-                src_ip = line.split(" ", 1)[1]
-                with self._lock:
-                    self.host_sockets[src_ip] = conn
-            else:
-                conn.close()
-                return
-
-            # 之后只是保持连接，真正发送在 send_permit 里
             while True:
-                # 不需要读东西，保持阻塞即可
-                data = f.readline()
-                if not data:
+                line_bytes = f.readline()
+                if not line_bytes:
+                    print(f"[HostChannel] connection closed from {addr}")
                     break
-        except Exception:
-            pass
+
+                line = line_bytes.decode().strip()
+                if not line:
+                    continue
+
+                # 这里假设 host_agent 发送的是 JSON 格式：
+                # {"type": "REGISTER", "src_ip": "10.0.0.1"}
+                try:
+                    msg = json.loads(line)
+                except json.JSONDecodeError as e:
+                    print(f"[HostChannel] invalid JSON from {addr}: {e}, raw={line!r}")
+                    continue
+
+                mtype = str(msg.get("type", "")).upper()
+
+                if mtype == "REGISTER":
+                    src_ip = msg.get("src_ip")
+                    # 你要的打印信息在这里：
+                    print(f"[HostChannel] REGISTER from {src_ip}: {msg}")
+                    with self._lock:
+                        self.host_sockets[src_ip] = conn
+
+                # 下面预留给“流注册”之类的扩展（后面会讲）
+                elif mtype == "FLOW_REQUEST":
+                    print(f"[HostChannel] FLOW_REQUEST from {msg.get('src_ip')}: {msg}")
+                    # TODO: 在这里调用调度器 new_flow(...)
+                else:
+                    print(f"[HostChannel] unknown message type {mtype}: {msg}")
+
+        except Exception as e:
+            print(f"[HostChannel] _handle_client error from {addr}: {e}")
         finally:
             if src_ip:
                 with self._lock:
                     self.host_sockets.pop(src_ip, None)
             conn.close()
+
 
     def send_permit(self, flow):
         """

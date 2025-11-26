@@ -1,9 +1,13 @@
 ryu：
 ryu-manager ./ryu_qos_apps/rest_conf_switch.py ./ryu_qos_apps/rest_qos.py  ./ryu_qos_appsqos_simple_switch_13.py
 
+ryu-manager --ofp-tcp-listen-port 6633 --ofp-listen-host 172.17.0.1 --wsapi-host 172.17.0.1 --wsapi-port 8080 ./ryu_qos_apps/rest_conf_switch.py ./ryu_qos_apps/rest_qos.py ./ryu_qos_apps/qos_simple_switch_13.py ./controller/scheduler_app.py
+
+
+
 mininet:
 
-sudo mn --custom  ./topology/datacenterBasic.py         --topo dcbasic         --controller=remote,ip=127.0.0.1,port=6633         --switch ovsk,protocols=OpenFlow13         --link tc
+sudo mn --custom  ./topology/datacenterBasic.py         --topo dcbasic         --controller=remote,ip=192.168.1.100,port=6633         --switch ovsk,protocols=OpenFlow13         --link tc
 
 命令：
 
@@ -13,9 +17,11 @@ sh ovs-ofctl dump-flows s1
 
 dpctl dump-flows
 
-dpctl dump-ports
+ dpctl dump-ports
 
-yc@yc-TUF-2:~/sdn_qos/scripts$ sudo ovs-appctl qos/show s1-eth1
+dpctl  del-flows
+
+sudo ovs-appctl qos/show s1-eth1
 
 ```
 QoS: s1-eth1 linux-htb

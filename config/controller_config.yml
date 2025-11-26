@@ -1,5 +1,6 @@
 # config/controller_config.yml
 
 # HostChannel 用的 TCP server 配置
-tcp_server_host: "0.0.0.0"
+tcp_server_host: "172.17.0.1"
+# tcp_server_host: "0.0.0.0"
 tcp_server_port: 9000

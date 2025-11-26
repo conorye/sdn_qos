@@ -3,7 +3,7 @@
 ###
  # @Author: yc && qq747339545@163.com
  # @Date: 2025-11-25 09:55:14
- # @LastEditTime: 2025-11-25 17:16:31
+ # @LastEditTime: 2025-11-25 22:33:34
  # @FilePath: /sdn_qos/scripts/setup_qos.sh
  # @Description: 
  # 
@@ -39,7 +39,7 @@
 #!/bin/bash
 
 # 设置控制器URL
-CONTROLLER_URL="http://localhost:8080"
+CONTROLLER_URL="http://172.17.0.1:8080"
 
 # 交换机DPID（基于run_mininet.py创建的拓扑）
 s1_dpid="0000000000000001"
@@ -52,11 +52,11 @@ s2_ovsdb_url="${CONTROLLER_URL}/v1.0/conf/switches/${s2_dpid}/ovsdb_addr"
 s3_ovsdb_url="${CONTROLLER_URL}/v1.0/conf/switches/${s3_dpid}/ovsdb_addr"
 
 echo "Setting OVSDB address for switches..."
-curl -X PUT -d '"tcp:127.0.0.1:6632"' "$s1_ovsdb_url"
+curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s1_ovsdb_url"
 echo $'\n' $?
-curl -X PUT -d '"tcp:127.0.0.1:6632"' "$s2_ovsdb_url"
+curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s2_ovsdb_url"
 echo $'\n' $?
-curl -X PUT -d '"tcp:127.0.0.1:6632"' "$s3_ovsdb_url"
+curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s3_ovsdb_url"
 echo $'\n' $?
 
 # 设置队列参数

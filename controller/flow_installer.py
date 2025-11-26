@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
 from ryu.base.app_manager import RyuApp
-from .models import Flow
+from models import Flow
 
 
 def make_cookie(flow_id: int, sub_id: int) -> int:
@@ -105,62 +105,74 @@ class FlowInstaller:
         """只删除指定 dpid 上此 flow 的规则（逐跳释放用）"""
         self._delete_flow_in_switch(dpid, flow.id)
 
-    def install_table0_and_table2_default(self, dp):
-        """
-        初始化 pipeline：
-        - Table 0: DSCP 分类 + goto_table(1/2)
-        - Table 2: 默认 L2 转发（这里只给个骨架，具体 L2 学习你可以结合现有代码）
-        """
-        ofp = dp.ofproto
-        parser = dp.ofproto_parser
-
-        # 这里简单写几个匹配 DSCP 的例子：
-        # Gold: 32-47 -> metadata=1
-        # Silver: 16-31 -> metadata=2
-        # Best: 0-15 -> metadata=3
-
-        def add_t0_rule(dscp_min, dscp_max, metadata_val):
-            match = parser.OFPMatch(
-                eth_type=0x0800,
-                ip_dscp=(dscp_min, 0b111111)  # 粗略匹配，可根据需要改成范围多条规则
-            )
-            inst = [
-                parser.OFPInstructionWriteMetadata(metadata_val, 0xffffffff),
-                parser.OFPInstructionGotoTable(1)
-            ]
-            mod = parser.OFPFlowMod(
-                datapath=dp,
-                table_id=0,
-                command=ofp.OFPFC_ADD,
-                priority=10,
-                match=match,
-                instructions=inst
-            )
-            dp.send_msg(mod)
-
-        # 为简化，我们只写一个“所有 IP 包 goto table 2”的默认规则
-        match = parser.OFPMatch(eth_type=0x0800)
-        inst = [parser.OFPInstructionGotoTable(2)]
+    def add_flow(self, datapath, table_id, priority, match, inst, cookie=0):
+        ofp = datapath.ofproto
+        parser = datapath.ofproto_parser
         mod = parser.OFPFlowMod(
-            datapath=dp,
-            table_id=0,
-            command=ofp.OFPFC_ADD,
-            priority=0,
+            datapath=datapath,
+            cookie=cookie,
+            table_id=table_id,
+            priority=priority,
             match=match,
             instructions=inst
         )
-        dp.send_msg(mod)
+        datapath.send_msg(mod)
 
-        # Table 2 默认直接 output=NORMAL 或交给现有 simple_switch 逻辑
-        # 这里只给一个 NORMAL 动作的骨架
-        actions = [parser.OFPActionOutput(ofp.OFPP_NORMAL)]
-        inst2 = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
-        mod2 = parser.OFPFlowMod(
-            datapath=dp,
-            table_id=2,
-            command=ofp.OFPFC_ADD,
-            priority=0,
-            match=parser.OFPMatch(),  # 任意
-            instructions=inst2
-        )
-        dp.send_msg(mod2)
+    
+    
+    def install_table0_1_2_default(self, datapath):
+        """ 
+        初始化 pipeline：
+        - Table 0: DSCP 分类
+        - Table 1: 
+        """
+        ofp = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        # 1) Table 0：按 DSCP 分类
+        # Gold: 32-47, Silver: 16-31, Best: 0-15 (例子)
+        # Gold
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(32, 0xFC))
+        inst = [
+            parser.OFPInstructionWriteMetadata(1, 0xff), # class_id=1
+            parser.OFPInstructionGotoTable(1)
+        ]
+        self.add_flow(datapath, table_id=0, priority=100, match=match, inst=inst)
+
+        # Silver
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(16, 0xFC))
+        inst = [
+            parser.OFPInstructionWriteMetadata(2, 0xff),
+            parser.OFPInstructionGotoTable(1)
+        ]
+        self.add_flow(datapath, table_id=0, priority=90, match=match, inst=inst)
+
+        # Best（业务但低优先）
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(0, 0xFC))
+        inst = [
+            parser.OFPInstructionWriteMetadata(3, 0xff),
+            parser.OFPInstructionGotoTable(1)
+        ]
+        self.add_flow(datapath, table_id=0, priority=80, match=match, inst=inst)
+
+        # 其它（无 DSCP / 非 IPv4）→ 直接交给 Table 2（simple_switch 学习）
+        match = parser.OFPMatch()
+        inst = [parser.OFPInstructionGotoTable(2)]
+        self.add_flow(datapath, table_id=0, priority=0, match=match, inst=inst)
+
+        # 2) Table 1 默认：凡是业务 DSCP 但没专用规则的 → 也扔给 Table 2
+        match = parser.OFPMatch()
+        inst = [parser.OFPInstructionGotoTable(2)]
+        self.add_flow(datapath, table_id=1, priority=0, match=match, inst=inst)
+        
+        # 3) Table 2：未匹配的流量发送给控制器（用于学习）
+        match = parser.OFPMatch()
+        # 关键：使用 OFPActionOutput 通过控制器学习
+        inst = [
+            parser.OFPInstructionActions(
+                ofp.OFPIT_APPLY_ACTIONS,
+                [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
+            )
+        ]
+        self.add_flow(datapath, table_id=2, priority=0, match=match, inst=inst)
+        

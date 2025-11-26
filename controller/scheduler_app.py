@@ -11,13 +11,13 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.app.wsgi import WSGIApplication, ControllerBase, route
 from ryu.lib import hub
 
-from .models import Flow
-from .path_manager import PathManager
-from .admission_control import AdmissionControl
-from .dscp_manager import DSCPManager
-from .flow_installer import FlowInstaller
-from .stats_collector import StatsCollector
-from .host_channel import HostChannel
+from models import Flow
+from path_manager import PathManager
+from admission_control import AdmissionControl
+from dscp_manager import DSCPManager
+from flow_installer import FlowInstaller
+from stats_collector import StatsCollector
+from host_channel import HostChannel
 
 # REST 配置
 SCHEDULER_INSTANCE_NAME = 'scheduler_api_app'
@@ -39,11 +39,12 @@ class GlobalScheduler(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(GlobalScheduler, self).__init__(*args, **kwargs)
+       
         wsgi = kwargs['wsgi']
 
         # datapath 列表
         self.datapaths: Dict[int, object] = {}
-
+        
         # flow 存储
         self.flows: Dict[int, Flow] = {}
         self.pending_flows: Dict[int, Flow] = {}
@@ -64,7 +65,7 @@ class GlobalScheduler(app_manager.RyuApp):
         # 从 topo_config.yml 读取端口带宽
         with open(topo_cfg_file, 'r') as f:
             topo_cfg = yaml.safe_load(f) or {}
-        port_capacity = {}
+        port_capacity = {} # (dpid, port_no) -> capacity_bps
         ports_cfg = topo_cfg.get('ports', {})
         for dpid_str, port_map in ports_cfg.items():
             dpid = int(dpid_str, 0) if dpid_str.startswith('0x') else int(dpid_str)
@@ -80,13 +81,14 @@ class GlobalScheduler(app_manager.RyuApp):
         # host TCP 通道
         with open(ctrl_cfg_file, 'r') as f:
             ctrl_cfg = yaml.safe_load(f) or {}
-        tcp_host = ctrl_cfg.get('tcp_server_host', '0.0.0.0')
-        tcp_port = int(ctrl_cfg.get('tcp_server_port', 9000))
+        tcp_host = ctrl_cfg.get('tcp_server_host', '0.0.0.0') # TCP服务器监听地址
+        tcp_port = int(ctrl_cfg.get('tcp_server_port', 9000)) # TCP服务器监听端口
+        self.logger.info(f"tcp_host:{tcp_host} tcp_port:{tcp_port}s")
         self.host_channel = HostChannel(tcp_host, tcp_port)
         self.host_channel.start()
 
         # StatsCollector
-        self.stats_collector = StatsCollector(self, interval=1.0)
+        self.stats_collector = StatsCollector(self,self.logger, interval=1.0)
         self.stats_collector.start()
 
         # 调度线程
@@ -113,7 +115,7 @@ class GlobalScheduler(app_manager.RyuApp):
         self.datapaths[dpid] = datapath
 
         # 安装默认 pipeline
-        self.flow_installer.install_table0_and_table2_default(datapath)
+        self.flow_installer.install_table0_1_2_default(datapath)
 
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def flow_stats_reply_handler(self, ev):
@@ -174,6 +176,7 @@ class GlobalScheduler(app_manager.RyuApp):
 
     def _run_scheduler_once(self):
         # 遍历 pending flows 尝试调度
+        self.logger.info("Scheduling %d pending flows", len(self.pending_flows))
         for flow_id in list(self.pending_flows.keys()):
             flow = self.pending_flows.get(flow_id)
             if not flow:
