@@ -42,6 +42,9 @@ class GlobalScheduler(app_manager.RyuApp):
        
         wsgi = kwargs['wsgi']
 
+        # ✅ 用 register，把 self 挂到 data 里传给 SchedulerRestController
+        wsgi.register(SchedulerRestController, {SCHEDULER_INSTANCE_NAME: self})
+        
         # datapath 列表
         self.datapaths: Dict[int, object] = {}
         
@@ -85,7 +88,7 @@ class GlobalScheduler(app_manager.RyuApp):
         tcp_port = int(ctrl_cfg.get('tcp_server_port', 9000)) # TCP服务器监听端口
         self.logger.info(f"tcp_host:{tcp_host} tcp_port:{tcp_port}s")
         self.host_channel = HostChannel(tcp_host, tcp_port)
-        self.host_channel.start()
+        # self.host_channel.start()
 
         # StatsCollector
         self.stats_collector = StatsCollector(self,self.logger, interval=1.0)
@@ -95,15 +98,24 @@ class GlobalScheduler(app_manager.RyuApp):
         self._scheduler_thread = hub.spawn(self._scheduler_loop)
 
         # REST API Controller
-        mapper = wsgi.mapper
-        wsgi.registory[SCHEDULER_INSTANCE_NAME] = self
-        route_kwargs = {'scheduler_app': self}
-        mapper.connect('scheduler', BASE_URL + '/request',
-                       controller=SchedulerRestController,
-                       action='request_flow',
-                       conditions=dict(method=['POST']),
-                       **route_kwargs)
-
+        # 1) 流注册接口：Host 调用
+        # mapper = wsgi.mapper
+        # wsgi.registory[SCHEDULER_INSTANCE_NAME] = self
+        # route_kwargs = {'scheduler_app': self}
+        # mapper.connect('scheduler', BASE_URL + '/request',
+        #                controller=SchedulerRestController,
+        #                action='request_flow',
+        #                conditions=dict(method=['POST']),
+        #                **route_kwargs)
+        
+        # # 2) Host 注册自身信息接口：Host 调用
+        # mapper.connect('scheduler', BASE_URL + '/register_host',
+        #             controller=SchedulerRestController,
+        #             action='register_host',
+        #             conditions=dict(method=['POST']),
+        #             **route_kwargs)
+        
+        
     # =============== Ryu OpenFlow 事件 ===============
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -258,46 +270,117 @@ class GlobalScheduler(app_manager.RyuApp):
 
 class SchedulerRestController(ControllerBase):
     def __init__(self, req, link, data, **config):
-        super(SchedulerRestController, self).__init__(req, link, data)
-        self.scheduler_app: GlobalScheduler = config['scheduler_app']
+        super(SchedulerRestController, self).__init__(req, link, data,**config)
+        self.scheduler_app: GlobalScheduler = data[SCHEDULER_INSTANCE_NAME]
 
     @route('scheduler', BASE_URL + '/request', methods=['POST'])
     def request_flow(self, req, **kwargs):
         """
-        业务流请求接口：
+        Host 发起业务流请求：
         POST /scheduler/request
         {
-          "src_ip": "...",
-          "dst_ip": "...",
-          "request_rate_bps": 5000000,
-          "size_bytes": 20000000,
-          "priority": 1
+            "src_ip": "10.0.0.1",
+            "src_port": 11000,          # Host 发流使用的本地端口（方便以后用）
+            "size_bytes": 20000000,
+            "request_rate_bps": 5000000,  # 可选，也可以用 qos_config 的默认
+            "priority": 1
         }
         """
         try:
-            body = req.json if hasattr(req, 'json') else json.loads(req.body)
+            body = req.text
+            msg = json.loads(body)
         except Exception:
-            body = {}
+            return self._json_response({"error": "invalid json"}, status=400)
 
-        src_ip = body.get('src_ip')
-        dst_ip = body.get('dst_ip')
-        req_rate = int(body.get('request_rate_bps', 0))
-        size_bytes = int(body.get('size_bytes', 0))
-        priority = int(body.get('priority', 0))
+        src_ip = msg.get("src_ip")
+        src_port = int(msg.get("src_port", 0))
+        size_bytes = int(msg.get("size_bytes", 0))
+        req_rate = int(msg.get("request_rate_bps", 0))
+        priority = int(msg.get("priority", 0))
 
-        if not src_ip or not dst_ip or req_rate <= 0 or size_bytes <= 0:
-            return self._response({"error": "invalid parameters"}, status=400)
+        if not src_ip or size_bytes <= 0:
+            return self._json_response({"error": "invalid params"}, status=400)
 
-        flow = self.scheduler_app.new_flow(src_ip, dst_ip, req_rate, size_bytes, priority)
-        return self._response({
+        if req_rate <= 0:
+            # 可以给一个默认值，或者从 qos_config 里查
+            req_rate = 10_000_000  # 比如 10Mbps，按需改
+
+        # 让 HostChannel 帮忙挑一个目的 host（随机选一个已注册 host，且 != src_ip）
+        dst_info = self.scheduler_app.host_channel.pick_dst_for_flow(src_ip)
+        if not dst_info:
+            return self._json_response({"error": "no dst host available"}, status=503)
+
+        dst_ip, dst_port = dst_info
+
+        # 创建 Flow（需要在 models.Flow 里支持 src_port/dst_port，如果还没有就加上）
+        flow = self.scheduler_app.new_flow(
+            src_ip=src_ip,
+            dst_ip=dst_ip,
+            request_rate_bps=req_rate,
+            size_bytes=size_bytes,
+            priority=priority,
+            src_port=src_port,
+            dst_port=dst_port,
+        )
+
+        return self._json_response({
             "flow_id": flow.id,
-            "status": flow.status
+            "status": flow.status,
+            "dst_ip": flow.dst_ip,
+            "dst_port": getattr(flow, "dst_port", None),
         })
 
-    def _response(self, data, status=200):
-        body = json.dumps(data)
-        return self._convert_response(body, status)
 
-    def _convert_response(self, body, status):
+    # def _response(self, data, status=200):
+    #     body = json.dumps(data)
+    #     return self._convert_response(body, status)
+
+    # def _convert_response(self, body, status):
+    #     from webob import Response
+    #     return Response(content_type='application/json', body=body, status=status)
+    
+    def _json_response(self, data, status=200):
         from webob import Response
-        return Response(content_type='application/json', body=body, status=status)
+        body = json.dumps(data)
+        return Response(
+            content_type='application/json',
+            charset='utf-8',                      # 告诉它编码
+            body=body.encode('utf-8'),            # 这里用 bytes
+            status=status
+        )
+
+    
+    @route('scheduler', BASE_URL + '/register_host', methods=['POST'])
+    def register_host(self, req, **kwargs):
+            """
+            Host 自身注册：
+            POST /scheduler/register_host
+            {
+            "host_ip": "10.0.0.1",
+            "permit_port": 10000,   # 本机上 PERMIT server 监听的端口
+            "recv_port": 11000      # 本机上接收业务流的端口（比如 iperf3 -s 用的）
+            }
+            """
+            try:
+                # body = req.text
+                # msg = json.loads(body)
+                msg = json.loads(req.body) if req.body else {}
+            except Exception:
+                return self._json_response({"error": "invalid json"}, status=400)
+
+            host_ip = msg.get("host_ip")
+            permit_port = int(msg.get("permit_port", 0))
+            recv_port = int(msg.get("recv_port", 0))
+
+            if not host_ip or permit_port <= 0 or recv_port <= 0:
+                return self._json_response({"error": "invalid params"}, status=400)
+
+            # 交给 HostChannel 管理
+            self.scheduler_app.host_channel.register_host(
+                host_ip=host_ip,
+                permit_port=permit_port,
+                recv_port=recv_port,
+            )
+
+            return self._json_response({"ok": True})
+

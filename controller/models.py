@@ -10,6 +10,8 @@ class Flow:
     id: int
     src_ip: str
     dst_ip: str
+    src_port: int
+    dst_port: int
     request_rate_bps: int
     size_bytes: int
     priority: int  # 0=best, 1=silver, 2=gold

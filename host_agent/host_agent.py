@@ -1,12 +1,3 @@
-'''
-Author: yc && qq747339545@163.com
-Date: 2025-11-25 09:53:33
-LastEditTime: 2025-11-26 15:16:20
-FilePath: /sdn_qos/host_agent/host_agent.py
-Description: 
-
-Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
-'''
 # host_agent/host_agent.py
 #!/usr/bin/env python3
 import socket
@@ -14,216 +5,328 @@ import json
 import subprocess
 import sys
 import time
+import threading
 import logging
+import urllib.request
 
-# 配置日志
+
+logger = logging.getLogger("host_agent")
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(message)s"
 )
-logger = logging.getLogger(__name__)
 
 
-def main():
-    """
-    主机代理主函数
-    
-    使用方式:
-        host_agent.py <controller_ip> <tcp_port> <my_ip>
-    
-    参数说明:
-        controller_ip: 控制器TCP服务器的IP地址
-        tcp_port: 控制器TCP服务器的端口号
-        my_ip: 本主机的IP地址（用于注册）
-    """
-    # 参数验证
-    if len(sys.argv) != 4:
-        print("Usage: host_agent.py <controller_ip> <tcp_port> <my_ip>")
-        print("Example: host_agent.py 127.0.0.1 9000 10.0.1.1")
-        sys.exit(1)
+# # --------- 与 RYU 的注册 ----------
 
-    ctrl_ip = sys.argv[1]
-    ctrl_port = int(sys.argv[2])
-    my_ip = sys.argv[3]
-    
-    logger.info(f"Starting host agent: controller={ctrl_ip}:{ctrl_port}, my_ip={my_ip}")
+# def register_to_controller(ctrl_ip: str, register_port: int,
+#                            my_ip: str, listen_port: int):
+#     """
+#     向 RYU 的 HostChannel 注册：
+#     - TCP client 连接 ctrl_ip:register_port
+#     - 发送一行 JSON: {"type":"REGISTER","src_ip":my_ip,"listen_port":listen_port}
+#     - 然后断开
+#     """
+#     msg = {
+#         "type": "REGISTER",
+#         "src_ip": my_ip,
+#         "listen_port": listen_port,
+#     }
+#     data = (json.dumps(msg) + "\n").encode("utf-8")
 
-    # 创建TCP socket并连接控制器
-    sock = None
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # 设置连接超时（10秒）
-        # sock.settimeout(10.0)1
-        logger.info(f"Connecting to controller at {ctrl_ip}:{ctrl_port}...")
-        sock.connect((ctrl_ip, ctrl_port))
-        logger.info("Successfully connected to controller")
-        
-        # 创建文件对象用于读写
-        f = sock.makefile("rwb", buffering=0)  # 无缓冲，立即刷新
-        
-        # 发送注册消息（JSON格式）
-        register_msg = {
-            "type": "REGISTER",
-            "src_ip": my_ip
-        }
-        reg_line = (json.dumps(register_msg) + '\n').encode('utf-8')
-        f.write(reg_line)
-        f.flush()
-        logger.info(f"Sent REGISTER message: {register_msg}")
+#     logger.info(
+#         f"Registering to controller {ctrl_ip}:{register_port} "
+#         f"with src_ip={my_ip}, listen_port={listen_port}"
+#     )
 
-        # 循环等待和处理控制器消息
-        logger.info("Waiting for PERMIT messages from controller...")
-        while True:
-            try:
-                line = f.readline()
-                if not line:
-                    logger.warning("Connection closed by controller")
-                    break
-                    
-                line = line.decode('utf-8').strip()
-                if not line:
-                    continue
-                    
-                logger.info(f"Received message: {line}")
-                
-                try:
-                    msg = json.loads(line)
-                except json.JSONDecodeError as e:
-                    logger.error(f"Invalid JSON received: {e}, raw: {line}")
-                    continue
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     sock.settimeout(5.0)
+#     try:
+#         sock.connect((ctrl_ip, register_port))
+#         sock.sendall(data)
+#         logger.info("REGISTER sent successfully")
+#     except OSError as e:
+#         logger.error(f"Failed to register to controller: {e}")
+#     finally:
+#         sock.close()
 
-                # 处理许可消息
-                if msg.get("type") == "PERMIT":
-                    handle_permit(msg)
-                else:
-                    logger.warning(f"Unknown message type: {msg.get('type')}")
-                    
-            except socket.timeout:
-                # 读取超时，继续循环
-                continue
-            except Exception as e:
-                logger.error(f"Error processing message: {e}")
-                break
-                
-    except socket.timeout:
-        logger.error(f"Connection timeout to {ctrl_ip}:{ctrl_port}")
-    except ConnectionRefusedError:
-        logger.error(f"Connection refused: Please check if controller is running on {ctrl_ip}:{ctrl_port}")
-        logger.error("Possible solutions:")
-        logger.error("1. Ensure controller is running")
-        logger.error("2. Check controller IP and port")
-        logger.error("3. Verify firewall settings")
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-    finally:
-        # 清理资源
-        if sock:
-            sock.close()
-            logger.info("Socket connection closed")
+
+# --------- PERMIT 推送接收 Server ----------
 
 def handle_permit(msg: dict):
     """
-    处理控制器发送的流量许可消息
-    
-    当收到PERMIT消息时，启动iperf3生成指定参数的流量
-    
-    Args:
-        msg: 许可消息字典，包含流参数
+    收到 PERMIT 后，启动 iperf3 发送流（你原来的逻辑可以搬过来）
     """
-    try:
-        # 解析消息参数
-        flow_id = msg.get("flow_id")
-        src_ip = msg.get("src_ip")
-        dst_ip = msg.get("dst_ip")
-        rate_bps = int(msg.get("send_rate_bps", 0))
-        size_bytes = int(msg.get("size_bytes", 0))
-        dscp = msg.get("dscp", 0)  # 从消息中获取DSCP值
-        
-        # 参数验证
-        if rate_bps <= 0 or size_bytes <= 0 or not dst_ip:
-            logger.error(f"Invalid PERMIT message parameters: {msg}")
-            return
+    flow_id = msg.get("flow_id")
+    src_ip = msg.get("src_ip")
+    dst_ip = msg.get("dst_ip")
+    rate_bps = int(msg.get("send_rate_bps", 0))
+    size_bytes = int(msg.get("size_bytes", 0))
+    dscp = int(msg.get("dscp", 0))
 
-        # 将DSCP转换为TOS值（DSCP左移2位）
-        tos = dscp << 2
-        
-        # 计算流量持续时间（秒），增加10%的余量
-        duration = int((size_bytes * 8 / rate_bps) * 1.1) + 1
-        
-        # 格式化速率字符串（Mbps或bps）
-        if rate_bps >= 1_000_000:
-            rate_str = f"{int(rate_bps / 1_000_000)}M"
-        else:
-            rate_str = f"{int(rate_bps)}"
+    if rate_bps <= 0 or size_bytes <= 0 or not dst_ip:
+        logger.error(f"Invalid PERMIT: {msg}")
+        return
 
-        # 构建iperf3命令
-        cmd = [
-            "iperf3",
-            "-u",  # UDP模式
-            "-c", dst_ip,
-            "-b", rate_str,
-            "-t", str(duration),
-            "--tos", str(tos),
-            "-l", "1400",  # 设置UDP包大小
-            "-i", "1",     # 每秒报告间隔
-        ]
-        
-        logger.info(f"Starting flow_id={flow_id}, dst={dst_ip}, rate={rate_str}bps, duration={duration}s, tos={tos}")
-        logger.info(f"Command: {' '.join(cmd)}")
-        
-        # 启动iperf3进程（后台运行）
+    # DSCP → TOS
+    tos = dscp << 2
+    duration = int(size_bytes * 8 / rate_bps) + 1
+    if rate_bps >= 1_000_000:
+        rate_str = f"{int(rate_bps / 1_000_000)}M"
+    else:
+        rate_str = f"{rate_bps}B"
+
+    cmd = [
+        "iperf3",
+        "-u",
+        "-c", dst_ip,
+        "-b", rate_str,
+        "-t", str(duration),
+        "--tos", str(tos),
+    ]
+    logger.info(f"START flow_id={flow_id} cmd: {' '.join(cmd)}")
+    subprocess.Popen(cmd)
+
+
+def start_permit_server(listen_ip: str, listen_port: int):
+    """
+    起一个 TCP Server，监听 listen_ip:listen_port
+    RYU 每次推 PERMIT 都会主动连过来，发一行 JSON 后断开
+    """
+
+    def _handle_conn(conn: socket.socket, addr):
         try:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            logger.info(f"Started iperf3 process (PID: {process.pid}) for flow {flow_id}")
-            
-            # 可选：等待进程完成并记录输出
-            # stdout, stderr = process.communicate()
-            # if stdout:
-            #     logger.info(f"iperf3 stdout: {stdout}")
-            # if stderr:
-            #     logger.error(f"iperf3 stderr: {stderr}")
-                
-        except FileNotFoundError:
-            logger.error("iperf3 not found. Please install iperf3: 'sudo apt install iperf3'")
-        except Exception as e:
-            logger.error(f"Failed to start iperf3: {e}")
-            
+            f = conn.makefile("rb")
+            for line_bytes in f:
+                line = line_bytes.decode("utf-8").strip()
+                if not line:
+                    continue
+                logger.info(f"Received from controller {addr}: {line}")
+                try:
+                    msg = json.loads(line)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Invalid JSON from controller: {e}, raw={line!r}")
+                    continue
+
+                msg_type = str(msg.get("type", "")).upper()
+                if msg_type == "PERMIT":
+                    handle_permit(msg)
+                else:
+                    logger.warning(f"Unknown message type from controller: {msg}")
+        finally:
+            conn.close()
+
+    def _server_loop():
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((listen_ip, listen_port))
+        server.listen(5)
+        logger.info(f"PERMIT server listening on {listen_ip}:{listen_port}")
+
+        while True:
+            conn, addr = server.accept()
+            t = threading.Thread(target=_handle_conn, args=(conn, addr), daemon=True)
+            t.start()
+
+    t = threading.Thread(target=_server_loop, daemon=True)
+    t.start()
+    return t
+
+def report_flow_finished(controller_ip: str, flow_id: int,
+                         bytes_received: int, rest_port: int = 8080):
+    """
+    调用 RYU REST 告诉调度器：某个 flow 已完成。
+    需要在 scheduler_app 里增加 /scheduler/host_report，下面第 3 节会讲。
+    """
+    url = f"http://{controller_ip}:{rest_port}/scheduler/host_report"
+    payload = {
+        "flow_id": flow_id,
+        "status": "finished",
+        "bytes_received": bytes_received,
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=3.0) as resp:
+            body = resp.read().decode("utf-8")
+            logger.info(f"report_flow_finished resp: {resp.status} {body}")
     except Exception as e:
-        logger.error(f"Error handling PERMIT message: {e}")
-# def handle_permit(msg: dict):
-#     flow_id = msg.get("flow_id")
-#     src_ip = msg.get("src_ip")
-#     dst_ip = msg.get("dst_ip")
-#     rate_bps = int(msg.get("send_rate_bps", 0))
-#     size_bytes = int(msg.get("size_bytes", 0))
-#     tos = int(msg.get("tos", 0))
+        logger.error(f"report_flow_finished error: {e}")
 
-#     if rate_bps <= 0 or size_bytes <= 0 or not dst_ip:
-#         print("[agent] invalid permit:", msg)
-#         return
 
-#     # 估算持续时间（秒），留一点余量
-#     duration = int(size_bytes * 8 / rate_bps) + 1
-#     rate_str = f"{int(rate_bps/1_000_000)}M" if rate_bps >= 1_000_000 else f"{rate_bps}B"
+def start_flow_receiver(listen_ip: str, data_port: int,
+                        controller_ip: str, rest_port: int = 8080):
+    """
+    简化版“流接收器”骨架：
+    - 接受一个连接
+    - 第一行 JSON 说明 flow_id / size_bytes
+    - 后面把该连接上的数据全部读完
+    - 读完以后调 report_flow_finished(...)
+    """
 
-#     cmd = [
-#         "iperf3",
-#         "-u",
-#         "-c", dst_ip,
-#         "-b", rate_str,
-#         "-t", str(duration),
-#         "--tos", str(tos),
-#     ]
-#     print(f"[agent] START flow_id={flow_id} cmd:", " ".join(cmd))
-#     # 后台起一个进程，不等待
-#     subprocess.Popen(cmd)
+    def _handle_flow_conn(conn: socket.socket, addr):
+        try:
+            f = conn.makefile("rb")
+            header = f.readline()
+            if not header:
+                logger.error(f"[flow_rx] empty header from {addr}")
+                return
+            header_json = header.decode("utf-8").strip()
+            try:
+                meta = json.loads(header_json)
+            except json.JSONDecodeError as e:
+                logger.error(f"[flow_rx] invalid header JSON from {addr}: {e}")
+                return
+
+            flow_id = int(meta.get("flow_id", 0))
+            size_bytes = int(meta.get("size_bytes", 0))
+            if flow_id <= 0 or size_bytes <= 0:
+                logger.error(f"[flow_rx] invalid meta: {meta}")
+                return
+
+            logger.info(f"[flow_rx] start receiving flow_id={flow_id} from {addr}, "
+                        f"size_bytes={size_bytes}")
+
+            received = 0
+            while True:
+                chunk = f.read(4096)
+                if not chunk:
+                    break
+                received += len(chunk)
+
+            logger.info(f"[flow_rx] finished flow_id={flow_id}, "
+                        f"received={received} bytes")
+
+            # 告诉 RYU
+            report_flow_finished(controller_ip, flow_id, received, rest_port=rest_port)
+
+        finally:
+            conn.close()
+
+    def _server_loop():
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((listen_ip, data_port))
+        server.listen(5)
+        logger.info(f"[flow_rx] flow receiver listening on {listen_ip}:{data_port}")
+
+        while True:
+            conn, addr = server.accept()
+            t = threading.Thread(target=_handle_flow_conn, args=(conn, addr), daemon=True)
+            t.start()
+
+    t = threading.Thread(target=_server_loop, daemon=True)
+    t.start()
+    return t
+
+def post_json(url: str, payload: dict, timeout: float = 3.0) -> dict:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        body = resp.read().decode("utf-8")
+        if not body:
+            return {}
+        try:
+            return json.loads(body)
+        except Exception:
+            return {}
+
+def register_host_rest(ctrl_ip: str, ctrl_rest_port: int,
+                       my_ip: str, permit_port: int, recv_port: int):
+    url = f"http://{ctrl_ip}:{ctrl_rest_port}/scheduler/register_host"
+    payload = {
+        "host_ip": my_ip,
+        "permit_port": permit_port,
+        "recv_port": recv_port,
+    }
+    logging.info(f"[agent] register_host_rest: {payload}")
+    resp = post_json(url, payload)
+    logging.info(f"[agent] register_host_rest resp: {resp}")
+
+def request_flow_rest(ctrl_ip: str, ctrl_rest_port: int,
+                      src_ip: str, src_port: int,
+                      size_bytes: int, request_rate_bps: int, priority: int = 0):
+    """
+    Host 发起一条业务流请求。
+    目的地由 RYU 决定，不需要在这里指定。
+    """
+    url = f"http://{ctrl_ip}:{ctrl_rest_port}/scheduler/request"
+    payload = {
+        "src_ip": src_ip,
+        "src_port": src_port,
+        "size_bytes": size_bytes,
+        "request_rate_bps": request_rate_bps,
+        "priority": priority,
+    }
+    logging.info(f"[agent] request_flow_rest: {payload}")
+    resp = post_json(url, payload)
+    logging.info(f"[agent] request_flow_rest resp: {resp}")
+    return resp
+
+def demo_send_flow(ctrl_ip, ctrl_rest_port, my_ip, recv_port):
+    # 这里用 recv_port 作为 src_port 只是示例，你可以自己规划端口
+    size_bytes = 20_000_000
+    req_rate = 5_000_000
+    resp = request_flow_rest(ctrl_ip, ctrl_rest_port,
+                             src_ip=my_ip,
+                             src_port=recv_port,
+                             size_bytes=size_bytes,
+                             request_rate_bps=req_rate,
+                             priority=1)
+    # 返回的 resp["flow_id"] 可以记下来做调试
+    return resp
+
+# --------- 主程序入口 ----------
+def main():
+    """
+        python host_agent.py 172.17.0.1 8080 172.17.0.101 9000 9000
+    """
+    if len(sys.argv) != 6:
+        print("Usage: host_agent.py <ctrl_rest_ip> <ctrl_rest_port> "
+              "<my_ip> <permit_port> <recv_port>")
+        sys.exit(1)
+
+    ctrl_ip = sys.argv[1]
+    ctrl_rest_port = int(sys.argv[2])
+    my_ip = sys.argv[3]
+    permit_port = int(sys.argv[4])
+    recv_port = int(sys.argv[5])
+
+    logging.info(
+        f"[agent] start: controller={ctrl_ip}:{ctrl_rest_port}, "
+        f"my_ip={my_ip}, permit_port={permit_port}, recv_port={recv_port}"
+    )
+
+    # 1. 起 PERMIT server
+    start_permit_server(my_ip, permit_port)
+
+    # 2. （你可以在别处起 iperf3 -s -p recv_port 作为接收端）
+    # 2. 启动“流接收器”（供其他 host 发业务流）
+    #    这里示例用了 listen_port+1，你可以按需修改端口规划
+    # start_flow_receiver("0.0.0.0", recv_port, recv_port)
+    # 3. 向 Ryu 注册自己
+    register_host_rest(ctrl_ip, ctrl_rest_port, my_ip, permit_port, recv_port)
+
+    # 4. demo：注册一条流（实际可以根据你的业务触发）
+    demo_send_flow(ctrl_ip, ctrl_rest_port, my_ip, recv_port)
+
+    # 5. 主线程保持存活
+    while True:
+        time.sleep(3600)
+
 
 
 if __name__ == "__main__":
     main()
+
+
