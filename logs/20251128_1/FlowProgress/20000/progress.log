@@ -1,0 +1,27 @@
+2025-11-28 22:09:10 [HostChannel] sent PERMIT to 172.17.0.101:10000 for flow_id=20000
+2025-11-28 22:09:11 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:11   sent(last_hop)=0.00MB / 20.97MB
+2025-11-28 22:09:11   rate(last_hop)=0.00Mbps eta=-1.0s
+2025-11-28 22:09:11   hop_bytes: s1=0.0MB s2=0.0MB status=allowed
+2025-11-28 22:09:16 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:16   sent(last_hop)=4.55MB / 20.97MB
+2025-11-28 22:09:16   rate(last_hop)=8.23Mbps eta=16.0s
+2025-11-28 22:09:16   hop_bytes: s1=4.5MB s2=4.5MB status=allowed
+2025-11-28 22:09:21 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:21   sent(last_hop)=9.69MB / 20.97MB
+2025-11-28 22:09:21   rate(last_hop)=8.24Mbps eta=11.0s
+2025-11-28 22:09:21   hop_bytes: s1=9.7MB s2=9.7MB status=allowed
+2025-11-28 22:09:26 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:26   sent(last_hop)=14.84MB / 20.97MB
+2025-11-28 22:09:26   rate(last_hop)=8.22Mbps eta=6.0s
+2025-11-28 22:09:26   hop_bytes: s1=14.8MB s2=14.8MB status=allowed
+2025-11-28 22:09:31 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:31   sent(last_hop)=19.99MB / 20.97MB
+2025-11-28 22:09:31   rate(last_hop)=8.21Mbps eta=1.0s
+2025-11-28 22:09:31   hop_bytes: s1=20.0MB s2=20.0MB status=allowed
+2025-11-28 22:09:32 [TailRelease] flow=20000 tail passed s2, release prev hop s1
+2025-11-28 22:09:32 [FlowProgress] flow=20000 class=1 dscp=16
+2025-11-28 22:09:32   sent(last_hop)=21.61MB / 20.97MB
+2025-11-28 22:09:32   rate(last_hop)=4.70Mbps eta=0.0s
+2025-11-28 22:09:32   hop_bytes: s1=21.0MB s2=21.6MB status=finished
+2025-11-28 22:09:32 [TailRelease] flow=20000 finished, released all hops & freed DSCP 16 (cond_bytes=True, cond_idle=False)

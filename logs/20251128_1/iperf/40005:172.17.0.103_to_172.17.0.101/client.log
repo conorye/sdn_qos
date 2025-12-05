@@ -1,0 +1,6 @@
+=== iperf3 client START 2025-11-28 22:22:57 ===
+CMD: iperf3 -u -c 172.17.0.101 -b 9M -t 10 --tos 64 -p 20012 --cport 20013
+
+iperf3: error - unable to connect to server: Connection refused
+
+=== iperf3 client END 2025-11-28 22:22:57, rc=1 ===

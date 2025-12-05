@@ -10,15 +10,18 @@ from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER, set_ev_cl
 from ryu.ofproto import ofproto_v1_3
 from ryu.app.wsgi import WSGIApplication, ControllerBase, route
 from ryu.lib import hub
-
+from ryu import utils
 from models import Flow
 from path_manager import PathManager
 from admission_control import AdmissionControl
-from dscp_manager import DSCPManager
+from port_manager import DSCPManager,PortManager
 from flow_installer import FlowInstaller
 from stats_collector import StatsCollector
 from host_channel import HostChannel
+from exp_logger import alloc_run_id
 
+import datetime
+import os
 # REST 配置
 SCHEDULER_INSTANCE_NAME = 'scheduler_api_app'
 BASE_URL = '/scheduler'
@@ -40,6 +43,12 @@ class GlobalScheduler(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(GlobalScheduler, self).__init__(*args, **kwargs)
        
+        # ==== 实验日志系统 ====
+ # ==== 新增：本次实验的时间戳 & 日志根目录 ====
+        self.run_ts, self.log_root = alloc_run_id("/home/yc/sdn_qos/logs")
+        self.logger.info(f"Experiment run_ts={self.run_ts}, log_root={self.log_root}")
+       
+       
         wsgi = kwargs['wsgi']
 
         # ✅ 用 register，把 self 挂到 data 里传给 SchedulerRestController
@@ -52,7 +61,11 @@ class GlobalScheduler(app_manager.RyuApp):
         self.flows: Dict[int, Flow] = {}
         self.pending_flows: Dict[int, Flow] = {}
         self.active_flows: Dict[int, Flow] = {}
-        self._flow_id_seq = 1000
+
+        # 每个源 host 单独维护计数器
+        self._flow_seq_per_host: Dict[int, int] = {}   # host_no -> local seq
+
+        
 
         # 初始化 PathManager / AdmissionControl / DSCPManager
         from os import path
@@ -75,9 +88,9 @@ class GlobalScheduler(app_manager.RyuApp):
             for port_no_str, cap in port_map.get('capacity_bps', {}).items():
                 port_capacity[(dpid, int(port_no_str))] = int(cap)
 
-        self.admission = AdmissionControl(port_capacity=port_capacity)
+        self.admission = AdmissionControl(port_capacity=port_capacity,log_root=self.log_root)
         self.dscp_mgr = DSCPManager()
-
+        self.port_mgr = PortManager()
         # FlowInstaller 需要访问 self.datapaths
         self.flow_installer = FlowInstaller(self)
 
@@ -87,7 +100,7 @@ class GlobalScheduler(app_manager.RyuApp):
         tcp_host = ctrl_cfg.get('tcp_server_host', '0.0.0.0') # TCP服务器监听地址
         tcp_port = int(ctrl_cfg.get('tcp_server_port', 9000)) # TCP服务器监听端口
         self.logger.info(f"tcp_host:{tcp_host} tcp_port:{tcp_port}s")
-        self.host_channel = HostChannel(tcp_host, tcp_port)
+        self.host_channel = HostChannel(tcp_host, tcp_port,run_ts=self.run_ts,port_mgr=self.port_mgr)
         # self.host_channel.start()
 
         # StatsCollector
@@ -99,7 +112,7 @@ class GlobalScheduler(app_manager.RyuApp):
 
         # REST API Controller
         # 1) 流注册接口：Host 调用
-        # mapper = wsgi.mapper
+        # mapper = wsgi.mapper.
         # wsgi.registory[SCHEDULER_INSTANCE_NAME] = self
         # route_kwargs = {'scheduler_app': self}
         # mapper.connect('scheduler', BASE_URL + '/request',
@@ -115,7 +128,16 @@ class GlobalScheduler(app_manager.RyuApp):
         #             conditions=dict(method=['POST']),
         #             **route_kwargs)
         
-        
+    def _delete_all_flows(self, datapath):
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+        match = parser.OFPMatch()
+        mod = parser.OFPFlowMod(
+            datapath=datapath, match=match, cookie=0,
+            cookie_mask=0, table_id=ofproto.OFPTT_ALL,
+            command=ofproto.OFPFC_DELETE, out_port=ofproto.OFPP_ANY,
+            out_group=ofproto.OFPG_ANY)
+        datapath.send_msg(mod)
     # =============== Ryu OpenFlow 事件 ===============
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -125,17 +147,28 @@ class GlobalScheduler(app_manager.RyuApp):
         dpid = datapath.id
         self.logger.info("Switch %s connected", dpid)
         self.datapaths[dpid] = datapath
-
+        # 先删除所有现有流表规则
+        self._delete_all_flows(datapath)
         # 安装默认 pipeline
+        self.logger.info(">>> install_table0_1_2_default CALLED, installing DSCP rules ...")
         self.flow_installer.install_table0_1_2_default(datapath)
 
-    @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
-    def flow_stats_reply_handler(self, ev):
-        """转发给 stats_collector 处理"""
-        self.stats_collector.handle_flow_stats_reply(ev)
-        # 这里也可以顺便调用尾部释放逻辑
-        self._maybe_release_by_tail()
-
+    # @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
+    # def flow_stats_reply_handler(self, ev):
+    #     """转发给 stats_collector 处理"""
+    #     self.stats_collector.handle_flow_stats_reply(ev)
+    #     # 这里也可以顺便调用尾部释放逻辑
+    #     self._maybe_release_by_tail()
+    @set_ev_cls(ofp_event.EventOFPErrorMsg, MAIN_DISPATCHER)
+    def error_msg_handler(self, ev):
+        msg = ev.msg
+        self.logger.error(
+            "OFPErrorMsg received: type=0x%02x code=0x%02x data=%s",
+            msg.type, msg.code, utils.hex_array(msg.data)
+    )
+    
+    
+    
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def on_flow_stats_reply(self, ev):
         self.stats_collector.on_flow_stats(ev.msg.datapath.id, ev.msg.body)
@@ -163,20 +196,30 @@ class GlobalScheduler(app_manager.RyuApp):
     # =============== Flow 管理 & 调度 ===============
 
     def new_flow(self, src_ip: str, dst_ip: str, request_rate_bps: int,
-                 size_bytes: int, priority: int) -> Flow:
-        self._flow_id_seq += 1
-        flow_id = self._flow_id_seq
+             size_bytes: int, priority: int,
+             src_port: int = 0, dst_port: int = 0) -> Flow:
+        flow_id = self._alloc_flow_id(src_ip)
+
         flow = Flow(
             id=flow_id,
             src_ip=src_ip,
             dst_ip=dst_ip,
             request_rate_bps=request_rate_bps,
             size_bytes=size_bytes,
-            priority=priority
+            priority=priority,
+            src_port=src_port,
+            dst_port=dst_port,
+            reason="",   # 你 Flow dataclass 里有 reason 字段，记得给默认值
         )
         self.flows[flow_id] = flow
         self.pending_flows[flow_id] = flow
+
+        self.logger.info(
+            "[scheduler] new_flow id=%d %s:%s -> %s:%s size=%d req_rate=%d priority=%d",
+            flow_id, src_ip, src_port, dst_ip, dst_port, size_bytes, request_rate_bps, priority
+        )
         return flow
+
 
     def _scheduler_loop(self):
         while True:
@@ -188,18 +231,34 @@ class GlobalScheduler(app_manager.RyuApp):
 
     def _run_scheduler_once(self):
         # 遍历 pending flows 尝试调度
-        self.logger.info("Scheduling %d pending flows", len(self.pending_flows))
+
+        # self.logger.info("[scheduler] _run_scheduler_once: pending=%d active=%d hosts=%s",len(self.pending_flows), len(self.active_flows), hosts_snapshot)
         for flow_id in list(self.pending_flows.keys()):
             flow = self.pending_flows.get(flow_id)
             if not flow:
                 continue
+            
+        #     self.logger.info(
+        #     "[scheduler] try flow id=%d src=%s dst=%s size=%d req_rate=%d prio=%d",
+        #     flow.id, flow.src_ip, flow.dst_ip,
+        #     getattr(flow, "size_bytes", 0),
+        #     getattr(flow, "request_rate_bps", 0),
+        #     getattr(flow, "priority", 0)
+        # )
 
             path = self.path_manager.get_path(flow.src_ip, flow.dst_ip)
             if not path:
                 # 找不到路径，暂时跳过
+                self.logger.warning(
+                "[scheduler_path] flow %d: NO PATH (%s -> %s)",
+                flow.id, flow.src_ip, flow.dst_ip
+                )
                 continue
-
-            ok, send_rate = self.admission.can_admit(flow, path)
+            # self.logger.info("[scheduler] flow %d: path=%s", flow.id, path)    
+            
+            ok, send_rate ,reason= self.admission.can_admit(flow, path)
+            self.logger.info("[scheduler_admission] flow %d: can_admit=%s send_rate=%s reason%s",flow.id, ok, send_rate,reason)
+            
             if not ok:
                 continue
 
@@ -209,7 +268,8 @@ class GlobalScheduler(app_manager.RyuApp):
             flow.dscp = self.dscp_mgr.alloc_dscp(flow.priority)
             # 简单映射：0->queue0, 1->queue1, 2->queue2
             flow.queue_id = flow.priority
-
+            self.logger.info("[scheduler_dscp] flow %d: allowed, send_rate=%d dscp=%d queue_id=%d",flow.id, flow.send_rate_bps, flow.dscp, flow.queue_id
+            )
             # 安装流表
             self.flow_installer.install_flow(flow)
 
@@ -221,50 +281,125 @@ class GlobalScheduler(app_manager.RyuApp):
             flow.allowed_at = time.time()
             self.active_flows[flow.id] = flow
             del self.pending_flows[flow.id]
-
+            self.logger.info(
+            "[scheduler] flow %d: status=%s, pending=%d active=%d",
+            flow.id, flow.status,
+            len(self.pending_flows), len(self.active_flows)
+            )
+            
+            flow.dst_port =self.port_mgr.alloc_dst_port(flow.dst_ip)
+            flow.src_port =self.port_mgr.alloc_src_port(flow.src_ip)
+            
             # 通知 host
+            self.logger.info("[scheduler] flow %d: sending FLOW_PREPARE", flow.id)
+            self.host_channel.send_flow_prepare(flow)  # 先通知 dst
+            self.logger.info("[scheduler] flow %d: sending PERMIT", flow.id)
             self.host_channel.send_permit(flow)
 
-    def _maybe_release_by_tail(self):
+    # def _maybe_release(self):
+    #     """
+    #     尾部检测 + 逐跳释放：
+    #     - 当某 hop 的 byte_count >= size_bytes * eps 时，释放前一跳规则和带宽
+    #     - 当最后一个 hop 也满足条件 / 或者长时间无新字节时，删除整条流的规则 & 释放整条路径
+    #     """
+    #     eps = 1.02  # 比原来的 1.05 稍微放宽一点（也可以直接用 1.0）
+
+    #     now = time.time()
+
+    #     for flow in list(self.s.active_flows.values()):
+    #         if not flow.path:
+    #             continue
+
+    #         total = flow.size_bytes * eps
+
+    #         # ------- 逐跳尾部释放逻辑保持不变 -------
+    #         for k, (dpid, port) in enumerate(flow.path):
+    #             b = flow.hop_bytes.get(dpid, 0)
+    #             if b >= total and dpid not in flow.released_hops and k > 0:
+    #                 prev_dpid, prev_port = flow.path[k - 1]
+    #                 self.s.flow_installer.delete_prev_hop_flow(flow, prev_dpid)
+    #                 self.s.admission.release_single_port(prev_dpid, prev_port, flow)
+
+    #                 flow.released_hops.add(dpid)
+    #                 msg = (f"[TailRelease] flow={flow.id} tail passed s{dpid}, "
+    #                        f"release prev hop s{prev_dpid}")
+    #                 self.logger.info(msg)
+    #                 self._log_flow_progress(flow, [msg])
+
+    #         # ------- 整条流是否结束？两个条件择一 -------
+    #         last_dpid = flow.path[-1][0]
+    #         last_bytes = flow.hop_bytes.get(last_dpid, 0)
+
+    #         # 条件1：字节达到 size_bytes * eps（原来的机制）
+    #         cond_bytes = last_bytes >= total
+
+    #         # 条件2：最后一跳长时间没有新字节（你要的机制）
+    #         idle_since = self.flow_idle_since.get(flow.id)
+    #         cond_idle = idle_since is not None and \
+    #                     (now - idle_since >= self.flow_idle_timeout)
+
+    #         if (cond_bytes or cond_idle) and flow.status != "finished":
+    #             flow.status = "finished"
+    #             flow.finished_at = now
+
+    #             # 额外打一次最终的 FlowProgress snapshot（status=finished）
+    #             last_rate = flow.hop_rate_bps.get(last_dpid, 0)
+    #             rem = max(0, flow.size_bytes - last_bytes)
+    #             eta = (rem * 8 / last_rate) if last_rate > 0 else -1
+    #             hop_str = " ".join(
+    #                 f"s{dpid}={flow.hop_bytes.get(dpid,0)/1e6:.1f}MB"
+    #                 for dpid, _ in flow.path
+    #             )
+    #             final_lines = [
+    #                 f"[FlowProgress] flow={flow.id} class={flow.priority} dscp={flow.dscp}",
+    #                 f"  sent(last_hop)={last_bytes/1e6:.2f}MB / {flow.size_bytes/1e6:.2f}MB",
+    #                 f"  rate(last_hop)={last_rate/1e6:.2f}Mbps eta={eta:.1f}s",
+    #                 f"  hop_bytes: {hop_str} status={flow.status}",
+    #             ]
+    #             self._log_flow_progress(flow, final_lines)
+
+    #             # 删除全路径规则 & 释放资源
+    #             self.s.flow_installer.delete_flow(flow)
+    #             self.s.admission.release(flow)
+    #             if flow.dscp is not None:
+    #                 self.s.dscp_mgr.free_dscp(flow.dscp)
+
+    #             self.s.active_flows.pop(flow.id, None)
+    #             # 清理 idle 记录
+    #             self.flow_idle_since.pop(flow.id, None)
+
+    #             msg = (f"[TailRelease] flow={flow.id} finished, "
+    #                    f"released all hops & freed DSCP {flow.dscp} "
+    #                    f"(cond_bytes={cond_bytes}, cond_idle={cond_idle})")
+    #             self.logger.info(msg)
+    #             self._log_flow_progress(flow, [msg])
+
+    
+    def _alloc_flow_id(self, src_ip: str) -> int:
         """
-        尾部检测 + 逐跳释放骨架：
-        - 当某 hop 的 byte_count >= size_bytes * 1.05 时，释放前一跳规则和带宽
-        - 当最后一个 hop 也满足条件时，释放全路径
+        按源 IP 分段分配 flow_id。
+        例如:
+          172.17.0.101 -> host_no=1 -> 10001,10002...
+          172.17.0.102 -> host_no=2 -> 20001,20002...
         """
-        for flow in list(self.active_flows.values()):
-            total = flow.size_bytes
-            if total <= 0 or not flow.path:
-                continue
-            threshold = int(total * 1.05)
+        try:
+            last_octet = int(src_ip.split(".")[-1])
+        except Exception:
+            # 兜底：用 0 段
+            last_octet = 0
 
-            # per-hop 检查
-            for idx, (dpid, port) in enumerate(flow.path):
-                bytes_here = flow.hop_bytes.get(dpid, 0)
-                if bytes_here >= threshold and idx > 0 and dpid not in flow.released_hops:
-                    prev_dpid, prev_port = flow.path[idx - 1]
-                    # 删除上一跳的规则
-                    self.flow_installer.delete_prev_hop_flow(flow, prev_dpid)
-                    # 释放上一跳预留
-                    self.admission.release_single_port(prev_dpid, prev_port, flow)
-                    flow.released_hops.add(dpid)
+        host_no = last_octet - 100   # 101 -> 1, 102 -> 2, 103 -> 3 ...
+        if host_no <= 0:
+            host_no = 0
 
-            # 最后一跳完成
-            last_dpid, _ = flow.path[-1]
-            last_bytes = flow.hop_bytes.get(last_dpid, 0)
-            if last_bytes >= threshold:
-                # 认为流完成
-                flow.status = "finished"
-                flow.finished_at = time.time()
-                # 删除全路径规则
-                self.flow_installer.delete_flow(flow)
-                # 释放全路径预留
-                self.admission.release(flow)
-                # 释放 DSCP
-                if flow.dscp is not None:
-                    self.dscp_mgr.free_dscp(flow.dscp)
-                # 从 active 移除
-                del self.active_flows[flow.id]
+        base = host_no * 10000
 
+        cur = self._flow_seq_per_host.get(host_no, 0) + 1
+        self._flow_seq_per_host[host_no] = cur
+
+        # 这里 +10000 是为了第一个 flow 就是 10001 / 20001 这种形态
+        flow_id = base + 10000 + cur - 1
+        return flow_id
 
 # =============== REST Controller ===============
 

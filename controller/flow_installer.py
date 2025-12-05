@@ -23,7 +23,7 @@ class FlowInstaller:
 
     def __init__(self, app: RyuApp):
         self.app = app  # GlobalScheduler 实例，用来 access self.datapaths
-
+        self.logger = app.logger
     def _get_dp(self, dpid: int):
         return self.app.datapaths.get(dpid)
 
@@ -132,7 +132,10 @@ class FlowInstaller:
         # 1) Table 0：按 DSCP 分类
         # Gold: 32-47, Silver: 16-31, Best: 0-15 (例子)
         # Gold
-        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(32, 0xFC))
+        self.logger.info("add GOLD flow: table=0, ip_dscp=32-47 ...")
+        # 这里调用 add_flow()
+
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=32)
         inst = [
             parser.OFPInstructionWriteMetadata(1, 0xff), # class_id=1
             parser.OFPInstructionGotoTable(1)
@@ -140,7 +143,9 @@ class FlowInstaller:
         self.add_flow(datapath, table_id=0, priority=100, match=match, inst=inst)
 
         # Silver
-        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(16, 0xFC))
+        self.logger.info("add Silver flow: table=0, ip_dscp=16-32 ...")
+        
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=16)
         inst = [
             parser.OFPInstructionWriteMetadata(2, 0xff),
             parser.OFPInstructionGotoTable(1)
@@ -148,7 +153,8 @@ class FlowInstaller:
         self.add_flow(datapath, table_id=0, priority=90, match=match, inst=inst)
 
         # Best（业务但低优先）
-        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=(0, 0xFC))
+        self.logger.info("add Best flow: table=0, ip_dscp=0-16 ...")
+        match = parser.OFPMatch(eth_type=0x0800, ip_dscp=0)
         inst = [
             parser.OFPInstructionWriteMetadata(3, 0xff),
             parser.OFPInstructionGotoTable(1)

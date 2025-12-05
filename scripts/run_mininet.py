@@ -1,7 +1,7 @@
 '''
 Author: yc && qq747339545@163.com
 Date: 2025-11-25 09:55:29
-LastEditTime: 2025-11-26 12:03:01
+LastEditTime: 2025-11-27 15:26:07
 FilePath: /sdn_qos/scripts/run_mininet.py
 Description: 
 
@@ -26,11 +26,11 @@ def run():
     net = Mininet(controller=RemoteController, switch=OVSSwitch, link=TCLink, autoSetMacs=True)
 
     c0 = net.addController('c0', controller=RemoteController,
-                           ip='172.17.0.1', port=6633) # 192.168.1.100 127.0.0.1  172.17.0.1
+                           ip='172.17.0.1', port=6633,protocols='OpenFlow13') # 192.168.1.100 127.0.0.1  172.17.0.1
 
-    s1 = net.addSwitch('s1')
-    s2 = net.addSwitch('s2')
-    s3 = net.addSwitch('s3')
+    s1 = net.addSwitch('s1',protocols='OpenFlow13')
+    s2 = net.addSwitch('s2',protocols='OpenFlow13')
+    s3 = net.addSwitch('s3',protocols='OpenFlow13')
 
     h1 = net.addHost('h1', ip='172.17.0.101/24',defaultRoute='via 172.17.0.254')
     h2 = net.addHost('h2', ip='172.17.0.102/24',defaultRoute='via 172.17.0.254')

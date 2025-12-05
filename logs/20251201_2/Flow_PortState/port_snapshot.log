@@ -1,0 +1,392 @@
+2025-12-01 15:19:53 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:19:56 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:19:59 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:02 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:05 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:08 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:11 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:14 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:17 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:20 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:23 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:26 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:29 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:32 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:35 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:38 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:41 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:44 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:47 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:50 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:53 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:56 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:20:59 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:02 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:05 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=10000000 avail=0 gold=0 silver=10000000 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:08 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:11 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:14 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:17 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s1:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s2:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=5000000 avail=5000000 gold=0 silver=5000000 best=0
+2025-12-01 15:21:20 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:23 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:26 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=8000000 avail=2000000 gold=0 silver=8000000 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:29 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:32 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:35 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:38 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:41 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:44 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:47 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:50 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:53 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:56 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:21:59 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:02 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:05 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:08 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:11 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:14 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+2025-12-01 15:22:17 [PortSnapshot] tag=periodic
+  s1:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s1:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s2:3 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:1 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0
+  s3:2 cap=10000000 reserved=0 avail=10000000 gold=0 silver=0 best=0

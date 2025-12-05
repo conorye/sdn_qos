@@ -1,0 +1,35 @@
+=== iperf3 client START 2025-11-28 22:09:10 ===
+CMD: iperf3 -u -c 172.17.0.102 -b 8M -t 21 --tos 64 -p 20000 --cport 20001
+
+Connecting to host 172.17.0.102, port 20000
+[  5] local 172.17.0.101 port 20001 connected to 172.17.0.102 port 20000
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-1.00   sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]   1.00-2.00   sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]   2.00-3.00   sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]   3.00-4.00   sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]   4.00-5.00   sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]   5.00-6.00   sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]   6.00-7.00   sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]   7.00-8.00   sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]   8.00-9.00   sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]   9.00-10.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  10.00-11.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  11.00-12.00  sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]  12.00-13.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  13.00-14.00  sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]  14.00-15.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  15.00-16.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  16.00-17.00  sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]  17.00-18.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  18.00-19.00  sec   976 KBytes  7.99 Mbits/sec  690  
+[  5]  19.00-20.00  sec   977 KBytes  8.00 Mbits/sec  691  
+[  5]  20.00-21.00  sec   977 KBytes  8.00 Mbits/sec  691  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-21.00  sec  20.0 MBytes  8.00 Mbits/sec  0.000 ms  0/14503 (0%)  sender
+[  5]   0.00-21.04  sec  20.0 MBytes  7.98 Mbits/sec  0.026 ms  0/14503 (0%)  receiver
+
+iperf Done.
+
+=== iperf3 client END 2025-11-28 22:09:31, rc=0 ===

@@ -10,12 +10,13 @@ class Flow:
     id: int
     src_ip: str
     dst_ip: str
-    src_port: int
-    dst_port: int
+    src_port: int 
+    dst_port: int 
     request_rate_bps: int
     size_bytes: int
     priority: int  # 0=best, 1=silver, 2=gold
-
+    reason : str
+    
     # 调度结果
     send_rate_bps: int = 0
     dscp: Optional[int] = None
@@ -23,11 +24,12 @@ class Flow:
     path: List[Tuple[int, int]] = field(default_factory=list)  # [(dpid, out_port), ...]
 
     # 状态
+    
     status: str = "pending"  # pending/allowed/active/finished/failed
     created_at: float = field(default_factory=time.time)
     allowed_at: Optional[float] = None
     finished_at: Optional[float] = None
-
+    
     # 统计信息：每个 hop 的字节数/速率
     hop_bytes: Dict[int, int] = field(default_factory=dict)      # dpid -> bytes
     hop_last_time: Dict[int, float] = field(default_factory=dict)

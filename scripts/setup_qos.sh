@@ -1,197 +1,111 @@
-# 原版
 #!/usr/bin/env bash
 ###
- # @Author: yc && qq747339545@163.com
- # @Date: 2025-11-25 09:55:14
- # @LastEditTime: 2025-11-25 22:33:34
- # @FilePath: /sdn_qos/scripts/setup_qos.sh
- # @Description: 
- # 
- # Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
-### 
-# scripts/setup_qos.sh
-# 用 ovs-vsctl 为特定端口配置 QoS 和队列。
-# 实际使用时请根据你的拓扑/端口名修改。
+# @Author: yc && qq747339545@163.com
+# @Description: 按 qos_config.yml 一次性给 OVS 配好 QoS/队列（3 队列方案）
+###
+# 在脚本开头添加
+sudo -v  # 提前验证 sudo 权限
 
-# set -e
+set -e
 
-# # 示例：在 s1-eth2 上配置 3 个队列
-# # 你可以扩展为读取 config/qos_config.yml 自动配置
+# -------- 0. 可选：确保 OVS 用 OpenFlow13 --------
+# 如果你已经在 Mininet 里写了 protocols='OpenFlow13'，下面这段可以留着也没问题。
+echo "Setting OpenFlow protocol version to OpenFlow13 on bridges s1/s2/s3..."
+for br in s1 s2 s3; do
+    sudo ovs-vsctl set bridge "$br" protocols=OpenFlow13 || true
+done
+echo "Done setting protocols."
 
-# SWITCH="s1"
-# PORT="s1-eth2"
-# MAX_RATE=10000000    # 10Mbps
+# 如果后面不再用 Ryu 的 rest_qos 管理 OVSDB，其实不需要 set-manager。
+# 如果你仍然想让 Ryu 通过 OVSDB 管理（比如以后扩展），可以保留：
+# echo "Setting OVSDB manager (ptcp:6632)..."
+# ovs-vsctl set-manager ptcp:6632 || true
+# echo "Done setting manager."
 
-# echo "Configuring QoS on $PORT ..."
+# -------- 1. 准备 qos_config.yml --------
 
-# ovs-vsctl -- \
-#   set port $PORT qos=@newqos -- \
-#   --id=@newqos create qos type=linux-htb other-config:max-rate=$MAX_RATE \
-#     queues:0=@q0 queues:1=@q1 queues:2=@q2 -- \
-#   --id=@q0 create queue other-config:min-rate=0 other-config:max-rate=$MAX_RATE -- \
-#   --id=@q1 create queue other-config:min-rate=2000000 other-config:max-rate=$MAX_RATE -- \
-#   --id=@q2 create queue other-config:min-rate=5000000 other-config:max-rate=$MAX_RATE
+# 假设脚本在 project_root/scripts/setup_qos.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="${SCRIPT_DIR}/../config/qos_config.yml"
 
-# echo "Done."
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "ERROR: QoS config file not found: $CONFIG_FILE"
+    exit 1
+fi
 
+echo "Using QoS config: $CONFIG_FILE"
 
+# 需要 yq 来解析 YAML
+if ! command -v yq &> /dev/null; then
+    echo "ERROR: yq is not installed."
+    echo "Please install yq (https://github.com/mikefarah/yq) and rerun."
+    exit 1
+fi
 
-#!/bin/bash
+# -------- 2. 按 qos_config.yml 为每个端口配置 3 个队列 --------
+# 结构参考 qos_config.yml:
+# qos_ports:
+#   "1":
+#     "2":
+#       max_rate_bps: 10000000
+#       queues:
+#         "0": { min_rate_bps: 0 }
+#         "1": { min_rate_bps: 2000000 }
+#         "2": { min_rate_bps: 5000000 }
 
-# 设置控制器URL
-CONTROLLER_URL="http://172.17.0.1:8080"
+echo "Configuring QoS/queues according to qos_config.yml ..."
 
-# 交换机DPID（基于run_mininet.py创建的拓扑）
-s1_dpid="0000000000000001"
-s2_dpid="0000000000000002"
-s3_dpid="0000000000000003"
+# 所有交换机 ID（dpid 简写，比如 1/2/3）
+SWITCH_IDS=$(yq e '.qos_ports | keys | .[]' "$CONFIG_FILE")
 
-# 设置OVSDB地址
-s1_ovsdb_url="${CONTROLLER_URL}/v1.0/conf/switches/${s1_dpid}/ovsdb_addr"
-s2_ovsdb_url="${CONTROLLER_URL}/v1.0/conf/switches/${s2_dpid}/ovsdb_addr"
-s3_ovsdb_url="${CONTROLLER_URL}/v1.0/conf/switches/${s3_dpid}/ovsdb_addr"
+for SWITCH_ID in $SWITCH_IDS; do
+    # 对应交换机下的端口 ID（例如 2 -> s1-eth2）
+    PORT_IDS=$(yq e ".qos_ports.\"$SWITCH_ID\" | keys | .[]" "$CONFIG_FILE")
 
-echo "Setting OVSDB address for switches..."
-curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s1_ovsdb_url"
-echo $'\n' $?
-curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s2_ovsdb_url"
-echo $'\n' $?
-curl -X PUT -d '"tcp:172.17.0.1:6632"' "$s3_ovsdb_url"
-echo $'\n' $?
+    for PORT_ID in $PORT_IDS; do
+        MAX_RATE=$(yq e ".qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".max_rate_bps" "$CONFIG_FILE")
+        QUEUE_COUNT=$(yq e ".qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".queues | length" "$CONFIG_FILE")
 
-# 设置队列参数
-s1_queue_url="${CONTROLLER_URL}/qos/queue/${s1_dpid}"
-s2_queue_url="${CONTROLLER_URL}/qos/queue/${s2_dpid}"
-s3_queue_url="${CONTROLLER_URL}/qos/queue/${s3_dpid}"
+        # dpid 1/2/3 -> s1/s2/s3
+        SWITCH_NAME="s${SWITCH_ID}"
+        # 端口号 1/2/3 -> sX-ethY
+        PORT_NAME="${SWITCH_NAME}-eth${PORT_ID}"
 
-echo "Setting queue parameters for switches..."
-# 配置s1的端口队列
-curl -X POST -d '{"port_name": "s1-eth1", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s1_queue_url"
-echo $'\n' $?
-curl -X POST -d '{"port_name": "s1-eth2", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s1_queue_url"
-echo $'\n' $?
+        echo
+        echo "==== Configuring $PORT_NAME (SW=$SWITCH_NAME, max_rate_bps=$MAX_RATE, queues=$QUEUE_COUNT) ===="
 
-# 配置s2的端口队列
-curl -X POST -d '{"port_name": "s2-eth1", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s2_queue_url"
-echo $'\n' $?
-curl -X POST -d '{"port_name": "s2-eth2", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s2_queue_url"
-echo $'\n' $?
-curl -X POST -d '{"port_name": "s2-eth3", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s2_queue_url"
-echo $'\n' $?
+        # 构造 ovs-vsctl 的参数：
+        #   set port $PORT_NAME qos=@newqos
+        #   --id=@newqos create qos type=linux-htb other-config:max-rate=$MAX_RATE \
+        #       queues:0=@q0 queues:1=@q1 ...
+        #   --id=@q0 create queue other-config:min-rate=... other-config:max-rate=$MAX_RATE
+        #   --id=@q1 ...
+        QUEUE_REF_ARGS=""
+        QUEUE_CREATE_ARGS=""
 
-# 配置s3的端口队列
-curl -X POST -d '{"port_name": "s3-eth1", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s3_queue_url"
-echo $'\n' $?
-curl -X POST -d '{"port_name": "s3-eth2", "type": "linux-htb", "max_rate": "1000000", "queues": [{"max_rate": "500000"}, {"min_rate": "800000"}]}' "$s3_queue_url"
-echo $'\n' $?
+        for i in $(seq 0 $((QUEUE_COUNT-1))); do
+            MIN_RATE=$(yq e ".qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".queues.\"$i\".min_rate_bps" "$CONFIG_FILE")
 
-# 设置流表规则
-s1_flow_url="${CONTROLLER_URL}/qos/rules/${s1_dpid}"
-s2_flow_url="${CONTROLLER_URL}/qos/rules/${s2_dpid}"
-s3_flow_url="${CONTROLLER_URL}/qos/rules/${s3_dpid}"
+            # queues:0=@q0 queues:1=@q1 ...
+            QUEUE_REF_ARGS="$QUEUE_REF_ARGS queues:${i}=@q${i}"
 
-echo "Installing flow entries to switches..."
-# 配置s1的流表规则（针对目标网络10.0.3.0/24的UDP 5002端口）
-curl -X POST -d '{"match": {"nw_dst": "10.0.3.0/24", "nw_proto": "UDP", "tp_dst": "5002"}, "actions":{"queue": "1"}}' "$s1_flow_url"
-echo $'\n' $?
-# 配置s2的流表规则
-curl -X POST -d '{"match": {"nw_dst": "10.0.3.0/24", "nw_proto": "UDP", "tp_dst": "5002"}, "actions":{"queue": "1"}}' "$s2_flow_url"
-echo $'\n' $?
-# 配置s3的流表规则
-curl -X POST -d '{"match": {"nw_dst": "10.0.3.0/24", "nw_proto": "UDP", "tp_dst": "5002"}, "actions":{"queue": "1"}}' "$s3_flow_url"
-echo $'\n' $?
+            # 每个队列对应一个 queue 对象
+            QUEUE_CREATE_ARGS="$QUEUE_CREATE_ARGS \
+ -- --id=@q${i} create queue other-config:min-rate=${MIN_RATE} other-config:max-rate=${MAX_RATE}"
+        done
 
-echo "QoS configuration completed successfully!"
+        # 真正执行 ovs-vsctl
+        echo "ovs-vsctl -- set port $PORT_NAME qos=@newqos -- --id=@newqos create qos type=linux-htb other-config:max-rate=$MAX_RATE $QUEUE_REF_ARGS $QUEUE_CREATE_ARGS"
 
+        sudo ovs-vsctl -- \
+            set port "$PORT_NAME" qos=@newqos -- \
+            --id=@newqos create qos type=linux-htb other-config:max-rate="$MAX_RATE" \
+            $QUEUE_REF_ARGS \
+            $QUEUE_CREATE_ARGS
 
+        echo "Done: $PORT_NAME"
+    done
+done
 
-
-
-
-# 通用脚本：根据 config/qos_config.yml 配置 QoS 和队列
-
-#!/usr/bin/env bash
-
-# 检查 yq 是否已安装
-# if ! command -v yq &> /dev/null; then
-#     echo "yq is not installed. Installing yq..."
-#     # 尝试通过 Go 安装 yq
-#     if command -v go &> /dev/null; then
-#         go install github.com/mikefarah/yq/v4@latest
-#     else
-#         # 尝试通过 apt 安装
-#         if command -v apt &> /dev/null; then
-#             sudo apt update
-#             sudo apt install -y yq
-#         # 尝试通过 brew 安装
-#         elif command -v brew &> /dev/null; then
-#             brew install yq
-#         else
-#             echo "Error: yq is not installed and cannot be installed automatically."
-#             echo "Please install yq manually: https://github.com/mikefarah/yq"
-#             exit 1
-#         fi
-#     fi
-# fi
-
-# 获取 qos_config.yml 文件的路径
-# CONFIG_FILE="../config/qos_config.yml"
-
-# # 检查配置文件是否存在
-# if [ ! -f "$CONFIG_FILE" ]; then
-#     echo "Configuration file $CONFIG_FILE not found."
-#     echo "Please create a config/qos_config.yml file with your QoS configuration."
-#     exit 1
-# fi
-
-# echo "Configuring QoS based on $CONFIG_FILE..."
-
-# # 获取所有交换机ID
-# SWITCH_IDS=$(yq e 'keys | .[]' $CONFIG_FILE)
-
-# # 遍历每个交换机ID
-# for SWITCH_ID in $SWITCH_IDS; do
-#     # 获取交换机ID对应的端口ID
-#     PORT_IDS=$(yq e "qos_ports.\"$SWITCH_ID\" | keys | .[]" $CONFIG_FILE)
-    
-#     # 遍历每个端口ID
-#     for PORT_ID in $PORT_IDS; do
-#         # 获取端口配置
-#         MAX_RATE=$(yq e "qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".max_rate_bps" $CONFIG_FILE)
-#         QUEUE_CONFIG=$(yq e "qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".queues" $CONFIG_FILE)
-        
-#         # 将交换机ID转换为实际交换机名称 (s1, s2, s3)
-#         SWITCH_NAME="s$SWITCH_ID"
-        
-#         # 将端口ID转换为实际端口名称 (s1-eth1, s1-eth2)
-#         PORT_NAME="$SWITCH_NAME-eth$PORT_ID"
-        
-#         echo "Configuring QoS on $PORT_NAME with max_rate_bps: $MAX_RATE"
-        
-#         # 配置 QoS
-#         # 为端口配置队列
-#         QUEUE_ARGS=""
-#         QUEUE_COUNT=$(yq e "qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".queues | length" $CONFIG_FILE)
-        
-#         # 遍历每个队列
-#         for i in $(seq 0 $((QUEUE_COUNT-1))); do
-#             # 获取队列的最小速率
-#             MIN_RATE=$(yq e "qos_ports.\"$SWITCH_ID\".\"$PORT_ID\".queues.\"$i\".min_rate_bps" $CONFIG_FILE)
-            
-#             # 构建队列配置参数
-#             QUEUE_ARGS="$QUEUE_ARGS queues:$i=@q$i"
-#             QUEUE_ARGS="$QUEUE_ARGS --id=@q$i create queue other-config:min-rate=$MIN_RATE other-config:max-rate=$MAX_RATE"
-#         done
-        
-#         # 使用 ovs-vsctl 配置 QoS
-#         echo "ovs-vsctl -- set port $PORT_NAME qos=@newqos -- --id=@newqos create qos type=linux-htb other-config:max-rate=$MAX_RATE $QUEUE_ARGS"
-#         ovs-vsctl -- \
-#             set port $PORT_NAME qos=@newqos -- \
-#             --id=@newqos create qos type=linux-htb other-config:max-rate=$MAX_RATE \
-#             $QUEUE_ARGS
-        
-#         echo "Done configuring $PORT_NAME"
-#     done
-# done
-
-# echo "QoS configuration completed successfully!"
+echo
+echo "All QoS queues configured successfully."

@@ -1,0 +1,33 @@
+2025-11-29 21:00:27 [HostChannel] sent PERMIT to 172.17.0.103:10000 for flow_id=40000
+2025-11-29 21:00:27 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:27   sent(last_hop)=0.00MB / 52.43MB
+2025-11-29 21:00:27   rate(last_hop)=0.00Mbps eta=-1.0s
+2025-11-29 21:00:27   hop_bytes: s3=0.0MB s2=0.0MB s1=0.0MB status=allowed
+2025-11-29 21:00:32 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:32   sent(last_hop)=2.85MB / 52.43MB
+2025-11-29 21:00:32   rate(last_hop)=5.14Mbps eta=77.2s
+2025-11-29 21:00:32   hop_bytes: s3=2.2MB s2=2.2MB s1=2.8MB status=allowed
+2025-11-29 21:00:37 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:37   sent(last_hop)=6.07MB / 52.43MB
+2025-11-29 21:00:37   rate(last_hop)=5.14Mbps eta=72.2s
+2025-11-29 21:00:37   hop_bytes: s3=5.4MB s2=5.4MB s1=6.1MB status=allowed
+2025-11-29 21:00:42 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:42   sent(last_hop)=9.29MB / 52.43MB
+2025-11-29 21:00:42   rate(last_hop)=5.14Mbps eta=67.1s
+2025-11-29 21:00:42   hop_bytes: s3=8.6MB s2=8.6MB s1=9.3MB status=allowed
+2025-11-29 21:00:47 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:47   sent(last_hop)=12.51MB / 52.43MB
+2025-11-29 21:00:47   rate(last_hop)=5.16Mbps eta=61.9s
+2025-11-29 21:00:47   hop_bytes: s3=11.9MB s2=11.9MB s1=12.5MB status=allowed
+2025-11-29 21:00:52 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:52   sent(last_hop)=15.73MB / 52.43MB
+2025-11-29 21:00:52   rate(last_hop)=5.14Mbps eta=57.1s
+2025-11-29 21:00:52   hop_bytes: s3=15.1MB s2=15.1MB s1=15.7MB status=allowed
+2025-11-29 21:00:57 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:00:57   sent(last_hop)=18.95MB / 52.43MB
+2025-11-29 21:00:57   rate(last_hop)=5.15Mbps eta=52.0s
+2025-11-29 21:00:57   hop_bytes: s3=18.3MB s2=18.3MB s1=18.9MB status=allowed
+2025-11-29 21:01:02 [FlowProgress] flow=40000 class=1 dscp=16
+2025-11-29 21:01:02   sent(last_hop)=22.17MB / 52.43MB
+2025-11-29 21:01:02   rate(last_hop)=5.14Mbps eta=47.1s
+2025-11-29 21:01:02   hop_bytes: s3=21.5MB s2=21.5MB s1=22.2MB status=allowed

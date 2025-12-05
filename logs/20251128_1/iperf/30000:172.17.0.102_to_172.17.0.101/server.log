@@ -1,0 +1,49 @@
+=== iperf3 server TEST START 2025-11-28 22:09:52 ===
+[  5] local 172.17.0.101 port 20002 connected to 172.17.0.102 port 20003
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-1.00   sec   817 KBytes  6.70 Mbits/sec  0.038 ms  0/578 (0%)  
+[  5]   1.00-2.00   sec   856 KBytes  7.01 Mbits/sec  0.060 ms  0/605 (0%)  
+[  5]   2.00-3.00   sec   854 KBytes  7.00 Mbits/sec  0.023 ms  0/604 (0%)  
+[  5]   3.00-4.00   sec   854 KBytes  7.00 Mbits/sec  0.045 ms  0/604 (0%)  
+[  5]   4.00-5.00   sec   854 KBytes  7.00 Mbits/sec  0.060 ms  0/604 (0%)  
+[  5]   5.00-6.00   sec   856 KBytes  7.01 Mbits/sec  0.052 ms  0/605 (0%)  
+[  5]   6.00-7.00   sec   854 KBytes  7.00 Mbits/sec  0.039 ms  0/604 (0%)  
+[  5]   7.00-8.00   sec   854 KBytes  7.00 Mbits/sec  0.047 ms  0/604 (0%)  
+[  5]   8.00-9.00   sec   854 KBytes  7.00 Mbits/sec  0.067 ms  0/604 (0%)  
+[  5]   9.00-10.00  sec   856 KBytes  7.01 Mbits/sec  0.040 ms  0/605 (0%)  
+[  5]  10.00-11.00  sec   854 KBytes  7.00 Mbits/sec  0.031 ms  0/604 (0%)  
+[  5]  11.00-12.00  sec   854 KBytes  7.00 Mbits/sec  0.040 ms  0/604 (0%)  
+[  5]  12.00-13.00  sec   856 KBytes  7.01 Mbits/sec  0.041 ms  0/605 (0%)  
+[  5]  13.00-14.00  sec   854 KBytes  7.00 Mbits/sec  0.022 ms  0/604 (0%)  
+[  5]  14.00-15.00  sec   854 KBytes  7.00 Mbits/sec  0.026 ms  0/604 (0%)  
+[  5]  15.00-16.00  sec   854 KBytes  7.00 Mbits/sec  0.029 ms  0/604 (0%)  
+[  5]  16.00-17.00  sec   856 KBytes  7.01 Mbits/sec  0.102 ms  0/605 (0%)  
+[  5]  17.00-18.00  sec   854 KBytes  7.00 Mbits/sec  0.056 ms  0/604 (0%)  
+[  5]  18.00-19.00  sec   854 KBytes  7.00 Mbits/sec  0.079 ms  0/604 (0%)  
+[  5]  19.00-20.00  sec   856 KBytes  7.01 Mbits/sec  0.154 ms  0/605 (0%)  
+[  5]  20.00-21.00  sec   854 KBytes  7.00 Mbits/sec  0.028 ms  0/604 (0%)  
+[  5]  21.00-22.00  sec   854 KBytes  7.00 Mbits/sec  0.027 ms  0/604 (0%)  
+[  5]  22.00-23.00  sec   854 KBytes  7.00 Mbits/sec  0.022 ms  0/604 (0%)  
+[  5]  23.00-24.00  sec   856 KBytes  7.01 Mbits/sec  0.037 ms  0/605 (0%)  
+[  5]  24.00-25.00  sec   854 KBytes  7.00 Mbits/sec  0.046 ms  0/604 (0%)  
+[  5]  25.00-26.00  sec   854 KBytes  7.00 Mbits/sec  0.024 ms  0/604 (0%)  
+[  5]  26.00-27.00  sec   856 KBytes  7.01 Mbits/sec  0.038 ms  0/605 (0%)  
+[  5]  27.00-28.00  sec   854 KBytes  7.00 Mbits/sec  0.022 ms  0/604 (0%)  
+[  5]  28.00-29.00  sec   854 KBytes  7.00 Mbits/sec  0.030 ms  0/604 (0%)  
+[  5]  29.00-30.00  sec   854 KBytes  7.00 Mbits/sec  0.050 ms  0/604 (0%)  
+[  5]  30.00-31.00  sec   856 KBytes  7.01 Mbits/sec  0.050 ms  0/605 (0%)  
+[  5]  31.00-32.00  sec   854 KBytes  7.00 Mbits/sec  0.027 ms  0/604 (0%)  
+[  5]  32.00-33.00  sec   854 KBytes  7.00 Mbits/sec  0.021 ms  0/604 (0%)  
+[  5]  33.00-34.00  sec   856 KBytes  7.01 Mbits/sec  0.045 ms  0/605 (0%)  
+[  5]  34.00-35.00  sec   854 KBytes  7.00 Mbits/sec  0.045 ms  0/604 (0%)  
+[  5]  35.00-36.00  sec   854 KBytes  7.00 Mbits/sec  0.020 ms  0/604 (0%)  
+[  5]  36.00-36.04  sec  36.8 KBytes  6.87 Mbits/sec  0.037 ms  0/26 (0%)  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-36.04  sec  30.0 MBytes  6.99 Mbits/sec  0.037 ms  0/21754 (0%)  receiver
+iperf3: interrupt - the server has terminated
+-----------------------------------------------------------
+Server listening on 20002
+-----------------------------------------------------------
+
+=== TEST END 2025-11-29 20:57:31 ===

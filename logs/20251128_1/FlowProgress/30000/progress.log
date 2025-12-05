@@ -1,0 +1,35 @@
+2025-11-28 22:09:16 [HostChannel] sent PERMIT to 172.17.0.102:10000 for flow_id=30000
+2025-11-28 22:09:21 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:21   sent(last_hop)=3.07MB / 31.46MB
+2025-11-28 22:09:21   rate(last_hop)=7.21Mbps eta=31.5s
+2025-11-28 22:09:21   hop_bytes: s2=3.1MB s1=3.1MB status=allowed
+2025-11-28 22:09:26 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:26   sent(last_hop)=7.58MB / 31.46MB
+2025-11-28 22:09:26   rate(last_hop)=7.19Mbps eta=26.6s
+2025-11-28 22:09:26   hop_bytes: s2=7.6MB s1=7.6MB status=allowed
+2025-11-28 22:09:31 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:31   sent(last_hop)=12.09MB / 31.46MB
+2025-11-28 22:09:31   rate(last_hop)=7.20Mbps eta=21.5s
+2025-11-28 22:09:31   hop_bytes: s2=12.1MB s1=12.1MB status=allowed
+2025-11-28 22:09:36 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:36   sent(last_hop)=16.59MB / 31.46MB
+2025-11-28 22:09:36   rate(last_hop)=7.22Mbps eta=16.5s
+2025-11-28 22:09:36   hop_bytes: s2=16.6MB s1=16.6MB status=allowed
+2025-11-28 22:09:41 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:41   sent(last_hop)=21.10MB / 31.46MB
+2025-11-28 22:09:41   rate(last_hop)=7.17Mbps eta=11.6s
+2025-11-28 22:09:41   hop_bytes: s2=21.1MB s1=21.1MB status=allowed
+2025-11-28 22:09:46 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:46   sent(last_hop)=25.61MB / 31.46MB
+2025-11-28 22:09:46   rate(last_hop)=7.21Mbps eta=6.5s
+2025-11-28 22:09:46   hop_bytes: s2=25.6MB s1=25.6MB status=allowed
+2025-11-28 22:09:51 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:51   sent(last_hop)=30.12MB / 31.46MB
+2025-11-28 22:09:51   rate(last_hop)=7.20Mbps eta=1.5s
+2025-11-28 22:09:51   hop_bytes: s2=30.1MB s1=30.1MB status=allowed
+2025-11-28 22:09:53 [TailRelease] flow=30000 tail passed s1, release prev hop s2
+2025-11-28 22:09:53 [FlowProgress] flow=30000 class=1 dscp=16
+2025-11-28 22:09:53   sent(last_hop)=32.41MB / 31.46MB
+2025-11-28 22:09:53   rate(last_hop)=3.96Mbps eta=0.0s
+2025-11-28 22:09:53   hop_bytes: s2=32.4MB s1=32.4MB status=finished
+2025-11-28 22:09:53 [TailRelease] flow=30000 finished, released all hops & freed DSCP 16 (cond_bytes=True, cond_idle=False)

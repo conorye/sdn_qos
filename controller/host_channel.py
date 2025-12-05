@@ -4,7 +4,13 @@ import threading
 import json
 from typing import Dict, Tuple , Optional
 import random
+import logging
+import os 
+import time
 
+
+
+LOG = logging.getLogger('host_channel')
 class HostChannel:
     """
     Host 通信模块（REST + 主动 TCP）：
@@ -23,11 +29,11 @@ class HostChannel:
         - 发送速率 send_rate_bps、总大小 size_bytes、dscp 等
     """
 
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int,run_ts: str,port_mgr=None):
         self.host = host
         self.port = port
-       
-
+        self.run_ts = run_ts 
+        self.port_mgr = port_mgr
         
         # key: host_ip, value: (permit_port, recv_port)
         self._hosts: Dict[str, Tuple[int, int]] = {}
@@ -38,14 +44,38 @@ class HostChannel:
         # self._server_sock: socket.socket | None = None
         # self._thread: threading.Thread | None = None
 
+    
+    def _append_flow_progress(self, flow_id: int, line: str):
+        """
+        直接往 FlowProgress/<flow_id>/progress.log 追加一行，带时间戳。
+        依赖 run_ts + 固定 base_dir=/home/yc/sdn_qos/logs。
+        """
+        if not self.run_ts:
+            return
+
+        base_dir = "/home/yc/sdn_qos/logs"
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        flow_dir = os.path.join(base_dir, self.run_ts, "FlowProgress", str(flow_id))
+        os.makedirs(flow_dir, exist_ok=True)
+        log_path = os.path.join(flow_dir, "progress.log")
+        try:
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(f"{ts} {line}\n")
+        except Exception as e:
+            LOG.warning("[HostChannel] _append_flow_progress failed: %s", e)
+
 
     # ---------- 注册部分：由 REST 调用 ----------
 
     def register_host(self, host_ip: str, permit_port: int, recv_port: int):
         with self._lock:
+            # 希望recv_port随机分配
+            
             self._hosts[host_ip] = (permit_port, recv_port)
-        print(f"[HostChannel] host registered: ip={host_ip}, "
-              f"permit_port={permit_port}, recv_port={recv_port}")
+        LOG.info(
+            "[HostChannel] register_host: ip=%s permit_port=%d recv_port=%d, all_hosts=%s",
+            host_ip, permit_port, recv_port, self._hosts
+        )
 
     def pick_dst_for_flow(self, src_ip: str) -> Optional[Tuple[str, int]]:
         """
@@ -58,12 +88,62 @@ class HostChannel:
                 for ip, info in self._hosts.items()
                 if ip != src_ip
             ]
+            LOG.info("[HostChannel] pick_dst_for_flow src_ip=%s candidates=%s",
+                 src_ip, candidates)
         if not candidates:
             return None
-        return random.choice(candidates)
+        dst = random.choice(candidates)
+        LOG.info("[HostChannel] picked dst for src=%s -> %s", src_ip, dst)
+        return dst
 
     # ---------- PERMIT 推送部分：由 GlobalScheduler 调用 ----------
+    def send_flow_prepare(self, flow):
+        """
+        主动连到 dst_ip 所在的 host 的 permit_port，发送 FLOW_PREPARE 消息。
+        告诉对端：
+        - 这条流的 flow_id
+        - src_ip / src_port
+        - dst_ip / dst_port
+        - 速率 / 大小 / dscp 等（可选，用来做检查或日志）
+        """
+        dst_ip = flow.dst_ip
+        with self._lock:
+            info = self._hosts.get(dst_ip)
 
+        if not info:
+            LOG.warning("[HostChannel] no host info for dst_ip=%s, "
+                        "skip FLOW_PREPARE for flow_id=%s", dst_ip, flow.id)
+            return
+        
+        permit_port, recv_port = info
+
+
+        msg = {
+            "type": "FLOW_PREPARE",
+            "flow_id": flow.id,
+            "src_ip": flow.src_ip,
+            "dst_ip": flow.dst_ip,
+            "src_port": flow.src_port,
+            "dst_port": flow.dst_port,
+            "send_rate_bps": flow.send_rate_bps,
+            "size_bytes": flow.size_bytes,
+            "dscp": flow.dscp,
+        }
+        if self.run_ts is not None:
+            msg["run_ts"] = self.run_ts
+
+        data = (json.dumps(msg) + "\n").encode("utf-8")
+        LOG.info(
+            "[HostChannel] send_flow_prepare: flow_id=%s %s:%s -> %s:%s",
+            flow.id, flow.src_ip, flow.src_port, flow.dst_ip,flow.dst_port
+        )
+        try:
+            with socket.create_connection((dst_ip, permit_port), timeout=3.0) as s:
+                s.sendall(data)
+        except OSError as e:
+            LOG.warning("[HostChannel] failed to send FLOW_PREPARE to %s:%s: %s",
+                        dst_ip, permit_port, e)
+            
     def send_permit(self, flow):
         """
         主动连到 src_ip 所在的 host 的 permit_port，发送 PERMIT 消息。
@@ -76,12 +156,13 @@ class HostChannel:
             info = self._hosts.get(src_ip)
 
         if not info:
-            print(f"[HostChannel] no host info for src_ip={src_ip}, "
-                  f"skip PERMIT for flow_id={flow.id}")
+            LOG.warning("[HostChannel] no host info for src_ip=%s, "
+                        "skip PERMIT for flow_id=%s", src_ip, flow.id)
             return
 
         permit_port, _recv_port = info
         dst_port = getattr(flow, "dst_port", None)
+        src_port = getattr(flow, "src_port", None)   # 新增
 
         msg = {
             "type": "PERMIT",
@@ -94,16 +175,35 @@ class HostChannel:
         }
         if dst_port is not None:
             msg["dst_port"] = dst_port
+        if src_port is not None:
+            msg["src_port"] = src_port    
+            
+        if self.run_ts is not None:
+            msg["run_ts"] = self.run_ts
 
         data = (json.dumps(msg) + "\n").encode("utf-8")
-
+        LOG.info(
+            "[HostChannel] send_permit: flow_id=%s src=%s dst=%s:%s "
+            "rate=%s size=%s dscp=%s",
+            flow.id, flow.src_ip, flow.dst_ip, dst_port,
+            flow.send_rate_bps, flow.size_bytes, getattr(flow, "dscp", 0),
+        )
         try:
             with socket.create_connection((src_ip, permit_port), timeout=3.0) as s:
                 s.sendall(data)
-            print(f"[HostChannel] sent PERMIT to {src_ip}:{permit_port} "
-                  f"for flow_id={flow.id}")
+
+            log_line = (f"[HostChannel] sent PERMIT to {src_ip}:{permit_port} "
+                        f"for flow_id={flow.id}")
+            print(log_line)
+            # ➕ 写入对应 flow 的 FlowProgress
+            self._append_flow_progress(flow.id, log_line)
+
         except OSError as e:
-            print(f"[HostChannel] failed to send PERMIT to {src_ip}:{permit_port}: {e}")
+            err_line = (f"[HostChannel] failed to send PERMIT to {src_ip}:{permit_port}: {e}")
+            print(err_line)
+            # 失败也可以记录一下（可选）
+            self._append_flow_progress(flow.id, err_line)
+
 
 
 

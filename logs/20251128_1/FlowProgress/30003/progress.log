@@ -1,0 +1,10 @@
+2025-11-28 22:22:34 [HostChannel] sent PERMIT to 172.17.0.102:10000 for flow_id=30003
+2025-11-28 22:22:37 [FlowProgress] flow=30003 class=1 dscp=16
+2025-11-28 22:22:37   sent(last_hop)=0.00MB / 10.49MB
+2025-11-28 22:22:37   rate(last_hop)=0.00Mbps eta=-1.0s
+2025-11-28 22:22:37   hop_bytes: s2=0.0MB s1=0.0MB status=allowed
+2025-11-28 22:22:38 [FlowProgress] flow=30003 class=1 dscp=16
+2025-11-28 22:22:38   sent(last_hop)=0.00MB / 10.49MB
+2025-11-28 22:22:38   rate(last_hop)=0.00Mbps eta=-1.0s
+2025-11-28 22:22:38   hop_bytes: s2=0.0MB s1=0.0MB status=finished
+2025-11-28 22:22:38 [TailRelease] flow=30003 finished, released all hops & freed DSCP 16 (cond_bytes=False, cond_idle=True)
